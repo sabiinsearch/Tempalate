@@ -90,8 +90,8 @@ void initWiFi() {
     // BOARD_ID = "HB_2552610648";
     
     String clientId = "d:" ORG ":" BOARD_TYPE ":" +BOARD_ID;
-    Serial.println("Connecting MQTT client: ");
-    Serial.print(clientId);
+    Serial.print("Connecting MQTT client: ");
+    Serial.println(clientId);
     // mqttConnected = client.connect((char*) clientId.c_str(), token, "");
   //  pub_sub_client.username_pw_set(mqttUser, mqttPassword);
     pub_sub_client.setServer(server, 1883);
