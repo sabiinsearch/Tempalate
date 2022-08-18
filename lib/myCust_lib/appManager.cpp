@@ -103,15 +103,17 @@ void initRGB(){
   data["switch"] = appMgr->switch_val;
   data["level"] = appMgr->waterLevel;
   if (appMgr->switch_val==1) {
-     data["energy"] = appMgr->energy;
+     data["energy"] = appMgr->current_accomulated;
+     appMgr->current_accomulated = 0;
   }
-  data["datetime"] = millis();
+  data["millis"] = millis();
 
   // Convert JSON object into a string
   root.printTo(payload);
   Serial.print(payload);
   Serial.println("\n"); 
   publishData(payload,appMgr->conManager);
+  
   dataJsonBuffer.clear();
  }
 

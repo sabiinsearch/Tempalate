@@ -90,8 +90,8 @@ void initWiFi() {
     // BOARD_ID = "HB_2552610648";
     
     String clientId = "d:" ORG ":" BOARD_TYPE ":" +BOARD_ID;
-    Serial.println("Connecting MQTT client: ");
-    Serial.print(clientId);
+    Serial.print("Connecting MQTT client: ");
+    Serial.println(clientId);
     // mqttConnected = client.connect((char*) clientId.c_str(), token, "");
   //  pub_sub_client.username_pw_set(mqttUser, mqttPassword);
     pub_sub_client.setServer(server, 1883);
@@ -103,12 +103,12 @@ void initWiFi() {
     if(con->mqtt_status){
       digitalWrite(MQTT_LED,LOW);   
       pub_sub_client.subscribe(sub_topic.c_str());
-      Serial.println("Subscribed to : >>  ");
-      Serial.print(sub_topic);
+      Serial.print("Subscribed to : >>  ");
+      Serial.println(sub_topic);
     }else {
       digitalWrite(MQTT_LED,HIGH);
-      Serial.println("Error connecting to MQTT, state: ");
-      Serial.print(pub_sub_client.state());
+      Serial.print("Error connecting to MQTT, state: ");
+      Serial.println(pub_sub_client.state());
       // delay(5000);
     }
      
@@ -153,7 +153,7 @@ void connectWiFi(connectionManager * con) {
         con->Wifi_status = true;
         digitalWrite(HEARTBEAT_LED,HIGH);
         digitalWrite(WIFI_LED,LOW);   
-        Serial.println("Wifi connected...yeey :)");        
+      //  Serial.println("Wifi connected...yeey :)");        
     }
 }
 

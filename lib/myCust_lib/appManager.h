@@ -10,7 +10,7 @@ typedef struct {
 
      connectionManager* conManager;
 //   energyMonitoringManager eManager;
-     float energy;
+     float current_accomulated;
      int switch_val;
      uint32_t waterLevel; 
 
