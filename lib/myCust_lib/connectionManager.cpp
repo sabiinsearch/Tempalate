@@ -70,6 +70,9 @@ connectionManager * const connectionManager_ctor(connectionManager * const me ) 
 
 /* Function implementation */
 
+void mqtt_loop(){
+  pub_sub_client.loop();
+}
 
 void initWiFi() {
   WiFi.mode(WIFI_STA); // explicitly set mode, esp defaults to STA+AP  
@@ -116,10 +119,6 @@ void initWiFi() {
     Serial.println("Cannot connect to MQTT as WiFi is not Connected !!");
   }
   return con->mqtt_status;
-}
-
-void mqtt_loop(){
-  pub_sub_client.loop();
 }
 
 void reconnectWiFi(connectionManager  * con){
