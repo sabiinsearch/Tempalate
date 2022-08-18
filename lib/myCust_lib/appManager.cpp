@@ -104,6 +104,7 @@ void initRGB(){
   data["level"] = appMgr->waterLevel;
   if (appMgr->switch_val==1) {
      data["energy"] = appMgr->energy;
+     appMgr->energy = 0;
   }
   data["datetime"] = millis();
 
@@ -112,6 +113,7 @@ void initRGB(){
   Serial.print(payload);
   Serial.println("\n"); 
   publishData(payload,appMgr->conManager);
+  
   dataJsonBuffer.clear();
  }
 
