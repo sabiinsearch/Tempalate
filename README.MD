@@ -1,7 +1,7 @@
 ## Code for Water Tank Receiver End ##
    ### Energy Calculation ###
   
-*** current consumed is saved in every reading . at final multiply / divide as per the timeas the other fields are constant thus, for final energy consumption, these constants could be calculated later. ***
+current consumed is saved in every reading . As the other fields are constant (Input Voltage, and other literal values ), these could be multiplied / divided to get the final consumption later.
 
 *** For Reference *** 
    Total energy cost = (Power in watts/1000) × hours operating × cost per kWh
