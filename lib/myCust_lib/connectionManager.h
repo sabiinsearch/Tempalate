@@ -7,7 +7,7 @@
 
 
 typedef struct {
-  
+
   bool radio_status;  
   bool ble_status;
   bool Wifi_status;
@@ -21,6 +21,7 @@ typedef struct {
 
    void print_communication(); 
    void initWiFi();
+   void mqtt_loop();
    bool connectMQTT(connectionManager*);
    void connectWiFi(connectionManager*);
    void reconnectWiFi(connectionManager*);

@@ -20,7 +20,7 @@ void appManager_ctor(appManager * const me, int sw_val) {
   me->conManager = connectionManager_ctor(&conManagerr);
   Serial.println("Connection Manager set with App Manager");
   me->switch_val = sw_val;
-  //broadcast_appMgr(me);
+  // broadcast_appMgr(me);
   Serial.println("AppManager set.. ");
 }
 
@@ -97,15 +97,11 @@ void initRGB(){
   JsonObject& data = root.createNestedObject("d");
 
   //char* boardID = getBoard_ID();
-  // "d": {"level": level, "switch": 1, "energy": energy, "datetime": d.getTime()}
-
+  
   root["type"] = BOARD_TYPE;
   root["uniqueId"] = getBoard_ID();
-  // jsonOut["switch"] = appMgr->switch_val;
-  // jsonOut["level"] = appMgr->waterLevel;
   data["switch"] = appMgr->switch_val;
   data["level"] = appMgr->waterLevel;
-  
   if (appMgr->switch_val==1) {
      data["energy"] = appMgr->energy;
   }

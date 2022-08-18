@@ -11,8 +11,6 @@
 #include "receiverBoard.h"
 
 
-
-
 #define BAND    433E6
 #define SCK     5
 #define MISO    19
@@ -35,7 +33,6 @@ WiFiManager wm; // WiFi Manager
 String sub_topic = SUB_TOPIC;
 String pub_topic = PUB_TOPIC;
 char server[] = SERVER;
-char apName[] = APNAME;
 char mqttUser[] = MQTT_USER;
 char mqttPassword[] = MQTT_PASSWORD;
 
@@ -43,16 +40,11 @@ char mqttPassword[] = MQTT_PASSWORD;
 /* constructor implementation */
 
 connectionManager * const connectionManager_ctor(connectionManager * const me ) {
-
    // me->ble_status = ble_status;
-    
-      // Init Lora
-
    if(RADIO_AVAILABILITY){
       initRadio(me);
       Serial.print(" Ready to print ");
    }
-
 
    // Init WiFi
    if(WIFI_AVAILABILITY) {
@@ -65,8 +57,8 @@ connectionManager * const connectionManager_ctor(connectionManager * const me ) 
 
   // Init Mqtt
   if(MQTT_AVAILABILITY) {
-    pub_sub_client.setServer(server, 1883);
-    pub_sub_client.setCallback(mqttCallback);
+    // pub_sub_client.setServer(server, 1883);
+    // pub_sub_client.setCallback(mqttCallback);
     connectMQTT(me);
     if(me->mqtt_status) {
         Serial.println(" mqtt connected");
@@ -88,30 +80,35 @@ void initWiFi() {
  */
  bool connectMQTT(connectionManager * con) {
   
-  if(con->Wifi_status && !con->mqtt_status){
+  if(con->Wifi_status){
     if(BOARD_ID == ""){
-      BOARD_ID = String(apName);
+      BOARD_ID = "HB_" +String(getBoard_ID());  
     }
-    BOARD_ID = "HB_Water_123456789";
-    // String clientId = "d:rqeofj:HB_Water:HB_Water_123456789";
-     String clientId = "d:" ORG ":" BOARD_TYPE ":" +BOARD_ID;
-     // String clientId = BOARD_ID;
-     Serial.print("Connecting MQTT client: ");
-     Serial.println(clientId);
-     // mqttConnected = client.connect((char*) clientId.c_str(), token, "");
-     con->mqtt_status = pub_sub_client.connect((char*) clientId.c_str(), mqttUser, mqttPassword);
-     if(con->mqtt_status){
-       digitalWrite(MQTT_LED,LOW);   
-       pub_sub_client.subscribe(sub_topic.c_str());
-       Serial.print("Subscribed to : >>  ");
-       Serial.println(sub_topic);
-     }else {
-       digitalWrite(MQTT_LED,HIGH);
-       Serial.print("Error connecting to MQTT, state: ");
-       Serial.print(pub_sub_client.state());
-     }
-     Serial.print("MQTT Status: >>> ");
-     Serial.print(pub_sub_client.state());
+    // BOARD_ID = "HB_2552610648";
+    
+    String clientId = "d:" ORG ":" BOARD_TYPE ":" +BOARD_ID;
+    Serial.println("Connecting MQTT client: ");
+    Serial.print(clientId);
+    // mqttConnected = client.connect((char*) clientId.c_str(), token, "");
+  //  pub_sub_client.username_pw_set(mqttUser, mqttPassword);
+    pub_sub_client.setServer(server, 1883);
+    pub_sub_client.setCallback(mqttCallback);
+    con->mqtt_status = pub_sub_client.connect((char*) clientId.c_str(), mqttUser, mqttPassword);
+    Serial.println("MQTT Status: >>>> ");
+    Serial.print(pub_sub_client.state());
+          
+    if(con->mqtt_status){
+      digitalWrite(MQTT_LED,LOW);   
+      pub_sub_client.subscribe(sub_topic.c_str());
+      Serial.println("Subscribed to : >>  ");
+      Serial.print(sub_topic);
+    }else {
+      digitalWrite(MQTT_LED,HIGH);
+      Serial.println("Error connecting to MQTT, state: ");
+      Serial.print(pub_sub_client.state());
+      // delay(5000);
+    }
+     
      con->mqtt_status = true;
      // Serial.println(mqttConnected);
   }else{
@@ -119,6 +116,10 @@ void initWiFi() {
     Serial.println("Cannot connect to MQTT as WiFi is not Connected !!");
   }
   return con->mqtt_status;
+}
+
+void mqtt_loop(){
+  pub_sub_client.loop();
 }
 
 void reconnectWiFi(connectionManager  * con){
@@ -129,13 +130,15 @@ void reconnectWiFi(connectionManager  * con){
         con->Wifi_status = false;
         digitalWrite(WIFI_LED,HIGH);
         Serial.println("Failed to connect");
-        // ESP.restart();
+        delay(3000);
+        ESP.restart();
+        delay(5000);
     } 
     else {
         //if you get here you have connected to the WiFi  
         digitalWrite(WIFI_LED,LOW);  
         con->Wifi_status = true;   
-       // Serial.println("connected...yeey :)");
+      //  Serial.println("Wifi connected...yeey :)");       
     }
 }
 
@@ -143,7 +146,7 @@ void connectWiFi(connectionManager * con) {
   bool res;
   digitalWrite(HEARTBEAT_LED,LOW);  
   res = wm.autoConnect("Tank_Board"); // auto generated AP name from chipid
-    if(!res) { 
+    if(!res) {
         reconnectWiFi(con);        
     }
     else {
@@ -151,7 +154,7 @@ void connectWiFi(connectionManager * con) {
         con->Wifi_status = true;
         digitalWrite(HEARTBEAT_LED,HIGH);
         digitalWrite(WIFI_LED,LOW);   
-        //Serial.println("connected...yeey :)");        
+        Serial.println("Wifi connected...yeey :)");        
     }
 }
 
@@ -189,20 +192,20 @@ char* string2char(String str){
 }
 
  void publishOnRadio(String data, connectionManager * con){
-    bool published = false;
+    // bool published = false;
 
-    if(con->radio_status && !published){
-        LoRa.beginPacket();
+    // if(con->radio_status && !published){
+    //     LoRa.beginPacket();
 
-        LoRa.print(data);
-        LoRa.print("\n");
-        LoRa.endPacket();
+    //     LoRa.print(data);
+    //     LoRa.print("\n");
+    //     LoRa.endPacket();
 
-        delay(1);
-        LoRa.flush();
-    }else{
-       Serial.print("Radio Not Available: >> ");
-    }
+    //     delay(1);
+    //     LoRa.flush();
+    // }else{
+    //    Serial.print("Radio Not Available: >> ");
+    // }
 }
 
 void checkDataOnRadio(){

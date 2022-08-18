@@ -22,21 +22,12 @@
     // IOT PLATFORM VARIABLES
 
     #define ORG             "rqeofj"
-    #define BOARD_TYPE      "HB_WATER"// "SB_MICRO"
+    #define BOARD_TYPE      "HB_Water"
     #define TOKEN           "1SatnamWaheguruJi"
-    #define PUBSUB_PREFIX   "iot-2/type/SB_MICRO/id/"
-
-    /** Unique device name */
-    #define APNAME           "HB_Water_123456789"
-
     #define SERVER          ORG ".messaging.internetofthings.ibmcloud.com";
-    // char server[] = "mqtt.flespi.io";
-    // iot-2/type/device_type/id/device_id/evt/event_id/fmt/json
     #define PUB_TOPIC       "iot-2/evt/status/fmt/json"
-    #define SUB_TOPIC        "iot-2/cmd/device/fmt/json"
-    // String pub_topic = "evt/sb_micro/cloud/";
-    // String sub_topic = "evt/sb_micro/board/";
-    #define MQTT_USER             "use-token-auth"
-    #define MQTT_PASSWORD         "1SatnamWaheguruJi" // Auth token of Device registered on Watson IoT Platform
+    #define SUB_TOPIC       "iot-2/cmd/device/fmt/json"
+    #define MQTT_USER       "use-token-auth"
+    #define MQTT_PASSWORD   "1SatnamWaheguruJi" 
     
 #endif

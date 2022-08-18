@@ -42,7 +42,7 @@ volatile unsigned long total_energy_consumed;
 
     inputStats.setWindowSecs( windowLength );
     float Energy;
-    unsigned long prev_pub_time;
+    unsigned long prev_pub_time = millis();
 
     while( true ) {
       sensorValue = analogRead(ACS_pin);  // read the analog in value:

@@ -59,14 +59,17 @@ void setup() {
 void loop() { 
     managr.switch_val = checkTouchDetected(&managr);
 
-    if(RADIO_AVAILABILITY) {
-      checkDataOnRadio();
-    }
+    // if(RADIO_AVAILABILITY) {
+    //   checkDataOnRadio();
+    // }
 
-    if (managr.conManager->Wifi_status && MQTT_AVAILABILITY && (!!!mqttCallback )) {
+    if (managr.conManager->Wifi_status && MQTT_AVAILABILITY && !managr.conManager->mqtt_status) {
        Serial.println("MQTT Connection Lost, RECONNECTING AGAIN.......");
        managr.conManager->mqtt_status = false;
        managr.conManager->mqtt_status = connectMQTT(managr.conManager); 
     }
+
+    mqtt_loop();
+    
    setWaterLevel_indicators(&managr);
 }
