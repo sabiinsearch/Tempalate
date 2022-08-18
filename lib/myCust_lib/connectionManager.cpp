@@ -97,14 +97,14 @@ void initWiFi() {
     pub_sub_client.setServer(server, 1883);
     pub_sub_client.setCallback(mqttCallback);
     con->mqtt_status = pub_sub_client.connect((char*) clientId.c_str(), mqttUser, mqttPassword);
-    Serial.print("MQTT Status: >>>> ");
-    Serial.println(pub_sub_client.state());
+    Serial.println("MQTT Status: >>>> ");
+    Serial.print(pub_sub_client.state());
           
     if(con->mqtt_status){
       digitalWrite(MQTT_LED,LOW);   
       pub_sub_client.subscribe(sub_topic.c_str());
-      Serial.println("Subscribed to : >>  ");
-      Serial.print(sub_topic);
+      Serial.print("Subscribed to : >>  ");
+      Serial.println(sub_topic);
     }else {
       digitalWrite(MQTT_LED,HIGH);
       Serial.print("Error connecting to MQTT, state: ");
@@ -153,7 +153,7 @@ void connectWiFi(connectionManager * con) {
         con->Wifi_status = true;
         digitalWrite(HEARTBEAT_LED,HIGH);
         digitalWrite(WIFI_LED,LOW);   
-        Serial.println("Wifi connected...yeey :)");        
+      //  Serial.println("Wifi connected...yeey :)");        
     }
 }
 

@@ -17,7 +17,7 @@ volatile unsigned long total_energy_consumed;
   unsigned long getEngergy(appManager* appMgr) {
     
     resetEnergy(appMgr);
-    return appMgr->energy;
+    return appMgr->current_accomulated;
 }
 // Energy Consumption
 
@@ -28,7 +28,7 @@ volatile unsigned long total_energy_consumed;
  }
 
  void energy_consumption(void * pvParameters) { 
-    
+
     appManager* appMgr = (appManager*)pvParameters; 
     RunningStatistics inputStats;                 // create statistics to look at the raw test signal
     float Volt_In = VOLTAGE_IN;
@@ -41,10 +41,11 @@ volatile unsigned long total_energy_consumed;
     float current_amps; // estimated actual current in amps
 
     inputStats.setWindowSecs( windowLength );
-    float Energy;
+    float current_acc;
     unsigned long prev_pub_time = millis();
 
     while( true ) {
+
       sensorValue = analogRead(ACS_pin);  // read the analog in value:
       inputStats.input(sensorValue);  // log to Stats function            
       // if((unsigned long)(millis() - previousMillis) >= printPeriod) {
@@ -52,28 +53,19 @@ volatile unsigned long total_energy_consumed;
         current_amps = intercept + slope * inputStats.sigma();
         current_amps = sqrt(current_amps*current_amps);        
         float cur = (int)(current_amps*10);
-        cur = (float)cur/10;
-        Energy = cur*Volt_In/3600;
-        //Serial.println(Energy);
-        appMgr->energy += Energy;
-        // total_energy_consumed += Energy;
-        // appMgr->energy = total_energy_consumed;
-        
+        appMgr->current_accomulated += (float)cur/10;   // Energy = { Input Volt * Current Measured /1000  * (1/3600*1000*4135)millis } Killo Watt Hours
+        //eMonitorig(appMgr);
         if( (appMgr->switch_val==0) && ((unsigned long)(millis() - prev_pub_time) >= PUBLISH_INTERVAL_OFF)) { 
            //  Serial.println(appMgr->energy);
-             eMonitorig(appMgr); 
+             //eMonitorig(appMgr); 
              prev_pub_time = millis();            
         }
-
 
         if( (appMgr->switch_val==1) && ((unsigned long)(millis() - prev_pub_time) >= PUBLISH_INTERVAL_ON)) { 
            //   Serial.println(appMgr->energy);
                 eMonitorig(appMgr); 
                 prev_pub_time = millis();            
-        }
-
-
-                        
+        }              
       // }
      }
 
@@ -81,7 +73,7 @@ volatile unsigned long total_energy_consumed;
 
 void resetEnergy(appManager* appMgr) {
   //Serial.println("Energy reset to 0");
-  appMgr->energy = 0;
+  appMgr->current_accomulated = 0;
 }
 
 
