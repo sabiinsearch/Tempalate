@@ -139,7 +139,26 @@ void initRGB(){
   //publishData(volt_level,appMgr->conManager);
   //broadcast_appMgr(appMgr);
 
-  
+// Set the water levels as per the input received 
+
+    if(Vout <= 0 ) {
+        appMgr->waterLevel = 0;  
+    }
+    if(0 < Vout < 10) {
+        appMgr->waterLevel = 1;  
+    }
+    if(10 < Vout < 20) {
+        appMgr->waterLevel = 2;  
+    }
+    if(20 < Vout < 30) {
+        appMgr->waterLevel = 3;  
+    }
+    if(30 < Vout < 40) {
+        appMgr->waterLevel = 4;  
+    }
+    if(40 < Vout < 50) {
+        appMgr->waterLevel = 5;  
+    }
  }
 
 
