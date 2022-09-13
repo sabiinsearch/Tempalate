@@ -1,7 +1,7 @@
 ## Code for Water Tank Receiver End ##
    ### Energy Calculation ###
   
-current consumed is saved in every reading . As the other fields are constant (Input Voltage, and other literal values ), these could be multiplied / divided to get the final consumption later.
+Energy is calculated using reading from sensor and then applying some calculations as per the constants and saved in appManager.
 
 *** For Reference *** 
 
