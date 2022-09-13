@@ -26,12 +26,6 @@ volatile unsigned long total_energy_consumed;
    unsigned int calibration = 100;  // V2 slider calibrates this
    unsigned int pF = PF;           // value from app_config.h
 
-
-  unsigned long getEngergy(appManager* appMgr) {
-    
-    resetEnergy(appMgr);
-    return appMgr->current_accomulated;
-}
 // Energy Consumption
 
  void eMonitorig(appManager* appMgr) {
