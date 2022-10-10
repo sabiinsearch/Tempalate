@@ -24,7 +24,8 @@ void LED_allOff();
 void broadcast_appMgr(appManager*);
 void check_WT(appManager*);
 int  checkTouchDetected(appManager*);
-void setWaterLevel_indicators(appManager*);
+void setWaterLevel_and_indicators(appManager*);
+void checkConnections_and_reconnect(appManager*);
 
 // functions to set LEDs as per status
 

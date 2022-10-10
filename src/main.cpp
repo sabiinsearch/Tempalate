@@ -18,7 +18,7 @@
 
 // my Managers
 appManager managr;
-
+unsigned long prev_pub_time=0;
 
 // setup function
 void setup() {
@@ -43,33 +43,39 @@ void setup() {
   Serial.println("Initializing App Manager..");
   appManager_ctor(&managr,0);
 
-
-  // Run Energy Monitoring in Core 2
-//  xTaskCreatePinnedToCore(energy_consumption, "Task2", 10000, NULL, 1, NULL,  1);
-    xTaskCreatePinnedToCore(energy_consumption, "Task2", 10000, &managr, 1, NULL,  1);
-    Serial.println("Energy Monitor set..");
-
-    setWaterLevel_indicators(&managr);     // Set Water Tank Level
-    Serial.println("Water_Level indicators set...");
+//  Task to monitor Energy
+    xTaskCreatePinnedToCore(energy_consumption, "Task2", 10000, &managr, 0, NULL,  0);   
 
 }
 /**
  * Logic that runs in Loop
  */
 void loop() { 
+    
+   // Check touch and manage switch
     managr.switch_val = checkTouchDetected(&managr);
+
+    if( (managr.switch_val==0) && ((unsigned long)(millis() - prev_pub_time) >= PUBLISH_INTERVAL_OFF)) { 
+      
+             broadcast_appMgr(&managr);             
+             prev_pub_time = millis();            
+      }
+      //vTaskDelay(5); 
+     if( (managr.switch_val==1) && ((unsigned long)(millis() - prev_pub_time) >= PUBLISH_INTERVAL_ON)) { 
+      
+                broadcast_appMgr(&managr); 
+                prev_pub_time = millis();            
+      }              
+
 
     // if(RADIO_AVAILABILITY) {
     //   checkDataOnRadio();
     // }
+   setWaterLevel_and_indicators(&managr);
 
-    if (managr.conManager->Wifi_status && MQTT_AVAILABILITY && !managr.conManager->mqtt_status) {
-       Serial.println("MQTT Connection Lost, RECONNECTING AGAIN.......");
-       managr.conManager->mqtt_status = false;
-       managr.conManager->mqtt_status = connectMQTT(managr.conManager); 
-    }
-
-    mqtt_loop();
-     
-   setWaterLevel_indicators(&managr);
+   if(managr.conManager->mqtt_status) {
+       mqtt_loop();
+    }   
+  
+ //  checkConnections_and_reconnect(&managr);   
 }

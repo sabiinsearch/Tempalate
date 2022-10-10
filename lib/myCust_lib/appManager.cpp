@@ -20,6 +20,8 @@ void appManager_ctor(appManager * const me, int sw_val) {
   me->conManager = connectionManager_ctor(&conManagerr);
   Serial.println("Connection Manager set with App Manager");
   me->switch_val = sw_val;
+  me->waterLevel = analogRead(WT_sensor);
+  Serial.println("Water_Level indicators set...");
   // broadcast_appMgr(me);
   Serial.println("AppManager set.. ");
 }
@@ -102,11 +104,9 @@ void initRGB(){
   root["uniqueId"] = getBoard_ID();
   data["switch"] = appMgr->switch_val;
   data["level"] = appMgr->waterLevel;
-  if (appMgr->switch_val==1) {
-     data["energy"] = appMgr->current_accomulated;
-     appMgr->current_accomulated = 0;
-  }
-  data["millis"] = millis();
+  data["energy"] = appMgr->current_accomulated;
+  appMgr->current_accomulated = 0;
+  data["timestamp"] = millis();
 
   // Convert JSON object into a string
   root.printTo(payload);
@@ -115,6 +115,7 @@ void initRGB(){
   publishData(payload,appMgr->conManager);
   
   dataJsonBuffer.clear();
+  vTaskDelay(10);
  }
 
  void check_WT(appManager * appMgr) {
@@ -202,27 +203,30 @@ void initRGB(){
   return appMgr->switch_val;
  }
 
- /*
-    // # define Level LEDs
-#define LED1_U             32
-#define LED1_D             33
-#define LED2_U             25
-#define LED2_D             26
-#define LED3_U             27 
-#define LED3_D             14 
-#define LED4_U             12 
-#define LED4_D             13 
-#define LED5_U             2 
-#define LED5_D             18 
- */
-
- void setWaterLevel_indicators(appManager* appMgr) {
-    int level = analogRead(WT_sensor);     
+// Method for setting water level indicators
+void setWaterLevel_and_indicators(appManager* appMgr) {
+    int level = analogRead(WT_sensor);  
+    // Serial.print("Level: "); 
+    // Serial.println(level);  
     if(level<=10) {
        appMgr->waterLevel = 0;      // set the water level in appManager
     }
 
        switch(appMgr->waterLevel) {
+
+         case 0:
+           digitalWrite(LED1_U,HIGH);
+           digitalWrite(LED2_U,HIGH);
+           digitalWrite(LED3_U,HIGH);
+           digitalWrite(LED4_U,HIGH);
+           digitalWrite(LED5_U,HIGH);
+
+           digitalWrite(LED1_D,LOW);          
+           digitalWrite(LED2_D,LOW);          
+           digitalWrite(LED3_D,LOW);           
+           digitalWrite(LED4_D,LOW);           
+           digitalWrite(LED5_D,LOW);
+            break;
 
          case 1:
            digitalWrite(LED1_U,LOW);
@@ -319,6 +323,15 @@ void initRGB(){
             break;               
 
        }
+ }
+
+ 
+
+ void checkConnections_and_reconnect(appManager* managr) {
+    
+    // Serial.print("Task to check connections is set @ Core ");
+    // Serial.println(xPortGetCoreID());
+
  }
 
 
