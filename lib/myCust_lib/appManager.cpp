@@ -23,7 +23,8 @@ void appManager_ctor(appManager * const me, int sw_val) {
   me->waterLevel = analogRead(WT_sensor);
   Serial.println("Water_Level indicators set...");
   // broadcast_appMgr(me);
-  Serial.println("AppManager set.. ");
+  Serial.print("AppManager set @ Core ");
+  Serial.println(xPortGetCoreID());
 }
 
 /* Function Implementation */
@@ -122,44 +123,38 @@ void initRGB(){
 
   uint32_t raw; 
   uint32_t Vin = 3.3;
+  uint32_t level;
   float Vout = 0.0;
   float buffer = 0;
   raw = analogRead(WT_sensor);
 //  if(raw){
   buffer = raw * Vin;
   Vout = (buffer)/1024.0;
-  // Serial.print("Raw: ");
-  // Serial.print(raw);
-  // Serial.print("\t");
-  // Serial.print("Vout: ");
-  // Serial.print(Vout);
-  String volt_level = "Tank_Level";
-  volt_level += Vout;
-  // Serial.print("\t");
-  // Serial.println(volt_level);
-  //publishData(volt_level,appMgr->conManager);
-  //broadcast_appMgr(appMgr);
-
+  level = (uint32_t)Vout;
 // Set the water levels as per the input received 
+   
 
-    if(Vout <= 0 ) {
-        appMgr->waterLevel = 0;  
-    }
-    if(0 < Vout < 10) {
-        appMgr->waterLevel = 1;  
-    }
-    if(10 < Vout < 20) {
-        appMgr->waterLevel = 2;  
-    }
-    if(20 < Vout < 30) {
-        appMgr->waterLevel = 3;  
-    }
-    if(30 < Vout < 40) {
-        appMgr->waterLevel = 4;  
-    }
-    if(40 < Vout < 50) {
+    if(0 < level < 1) {
         appMgr->waterLevel = 5;  
     }
+    else if((0 < level ) && (level< 2)) {
+        appMgr->waterLevel = 4;  
+    }
+    else if((1 < level ) && (level < 3)) {
+        appMgr->waterLevel = 3;  
+    }
+    else if((2 < level ) && (level < 4)) {
+        appMgr->waterLevel = 2;  
+    }
+    else if((4 < level ) && (level < 9)) {
+        appMgr->waterLevel = 1;  
+    }
+    else if((10 < level ) && (level < 13 )) {
+        appMgr->waterLevel = 0;  
+    }
+
+   // appMgr->waterLevel = level;
+    
  }
 
 
@@ -184,7 +179,7 @@ void initRGB(){
         
 
         if(count_press<2500) {
-          check_WT(appMgr);
+          //check_WT(appMgr);
           if (appMgr->switch_val == 1){
             Serial.println("Energy Monitoring Off..");
             digitalWrite(SW_pin, 1);
@@ -205,14 +200,10 @@ void initRGB(){
 
 // Method for setting water level indicators
 void setWaterLevel_and_indicators(appManager* appMgr) {
-    int level = analogRead(WT_sensor);  
-    // Serial.print("Level: "); 
-    // Serial.println(level);  
-    if(level<=10) {
-       appMgr->waterLevel = 0;      // set the water level in appManager
-    }
 
-       switch(appMgr->waterLevel) {
+    check_WT(appMgr);  
+  
+       switch((int)appMgr->waterLevel) {
 
          case 0:
            digitalWrite(LED1_U,HIGH);
@@ -321,8 +312,8 @@ void setWaterLevel_and_indicators(appManager* appMgr) {
            digitalWrite(LED5_D,LOW);
 
             break;               
-
        }
+       
  }
 
  
