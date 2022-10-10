@@ -23,7 +23,7 @@ typedef struct {
    void initWiFi();
    void mqtt_loop();
    bool connectMQTT(connectionManager*);
-   void connectWiFi(connectionManager*);
+   bool connectWiFi(connectionManager*);
    void reconnectWiFi(connectionManager*);
    void resetWifi(connectionManager*);
    void initRadio(connectionManager*);

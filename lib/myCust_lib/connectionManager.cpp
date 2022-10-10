@@ -41,6 +41,7 @@ char mqttPassword[] = MQTT_PASSWORD;
 
 connectionManager * const connectionManager_ctor(connectionManager * const me ) {
    // me->ble_status = ble_status;
+  /*
    if(RADIO_AVAILABILITY){
       initRadio(me);
       Serial.print(" Ready to print ");
@@ -64,7 +65,7 @@ connectionManager * const connectionManager_ctor(connectionManager * const me ) 
         Serial.println(" mqtt connected");
     }
   }
-  
+  */
    return me;
 }
 
@@ -141,7 +142,7 @@ void reconnectWiFi(connectionManager  * con){
     }
 }
 
-void connectWiFi(connectionManager * con) {
+bool connectWiFi(connectionManager * con) {
   bool res;
   digitalWrite(HEARTBEAT_LED,LOW);  
   res = wm.autoConnect("Tank_Board"); // auto generated AP name from chipid
@@ -155,6 +156,7 @@ void connectWiFi(connectionManager * con) {
         digitalWrite(WIFI_LED,LOW);   
       //  Serial.println("Wifi connected...yeey :)");        
     }
+    return res;
 }
 
 void resetWifi(connectionManager * con) {
@@ -315,8 +317,15 @@ void publishOnMqtt(String data, connectionManager * con) {
 void publishData(String data, connectionManager * con) {
 
     //  publishOnRadio(data,con);
+    if (!(con->Wifi_status) && MQTT_AVAILABILITY && WIFI_AVAILABILITY && !(con->mqtt_status)) {
+       Serial.println("connecting to cloud.......");
+       if (con->Wifi_status = connectWiFi(con)) { 
+         if (con->mqtt_status = connectMQTT(con)) {
+           publishOnMqtt(data, con);
+         } 
+       }
+    }
      
-     publishOnMqtt(data, con);
 
 }
 
