@@ -46,6 +46,9 @@ void setup() {
 //  Task to monitor Energy
     xTaskCreatePinnedToCore(energy_consumption, "Task2", 10000, &managr, 0, NULL,  0);   
 
+//  Task to monitor connectivity
+    xTaskCreatePinnedToCore(checkConnections_and_reconnect, "Task3", 90000, &managr, 0, NULL,  1);   
+
 }
 /**
  * Logic that runs in Loop
@@ -68,9 +71,6 @@ void loop() {
       }              
 
 
-    // if(RADIO_AVAILABILITY) {
-    //   checkDataOnRadio();
-    // }
    setWaterLevel_and_indicators(&managr);
 
    if(managr.conManager->mqtt_status) {
