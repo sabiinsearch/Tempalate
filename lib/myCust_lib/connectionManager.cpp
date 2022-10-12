@@ -46,16 +46,12 @@ connectionManager * const connectionManager_ctor(connectionManager * const me ) 
       initRadio(me);
       Serial.print(" Ready to print ");
    }
-
+*/
    // Init WiFi
    if(WIFI_AVAILABILITY) {
        initWiFi();
-       connectWiFi(me);
-       if(me->Wifi_status) {
-           Serial.println("Wifi connected");
-       }
    }
-
+/*
   // Init Mqtt
   if(MQTT_AVAILABILITY) {
     // pub_sub_client.setServer(server, 1883);
@@ -77,6 +73,7 @@ void mqtt_loop(){
 
 void initWiFi() {
   WiFi.mode(WIFI_STA); // explicitly set mode, esp defaults to STA+AP  
+  //wm.setWiFiAutoReconnect(true);
 }
 
 /**
@@ -124,14 +121,13 @@ void initWiFi() {
 
 void reconnectWiFi(connectionManager  * con){
   bool res;
-  wm.resetSettings(); // reset settings - wipe stored credentials for testing, these are stored by the esp library
   res = wm.autoConnect("Tank_Board"); // anonymous ap
     if(!res) {
         con->Wifi_status = false;
         digitalWrite(WIFI_LED,HIGH);
         Serial.println("Failed to connect");
         delay(3000);
-        ESP.restart();
+      //  ESP.restart();
         delay(5000);
     } 
     else {
@@ -145,22 +141,22 @@ void reconnectWiFi(connectionManager  * con){
 bool connectWiFi(connectionManager * con) {
   bool res;
   digitalWrite(HEARTBEAT_LED,LOW);  
-  res = wm.autoConnect("Tank_Board"); // auto generated AP name from chipid
-    if(!res) {
-        reconnectWiFi(con);        
-    }
-    else {
-        //if you get here you have connected to the WiFi         
+  wm.setConnectTimeout(5000);
+  res = wm.autoConnect("Tank"); // auto generated AP name from chipid
+  
+    if(res) {
+      //if you get here you have connected to the WiFi         
         con->Wifi_status = true;
         digitalWrite(HEARTBEAT_LED,HIGH);
         digitalWrite(WIFI_LED,LOW);   
-      //  Serial.println("Wifi connected...yeey :)");        
+      //  Serial.println("Wifi connected...yeey :)");           
     }
     return res;
 }
 
 void resetWifi(connectionManager * con) {
     con->Wifi_status = false;
+    wm.resetSettings(); // reset settings - wipe stored credentials for testing, these are stored by the esp library
     digitalWrite(WIFI_LED,HIGH);
     reconnectWiFi(con);
 }

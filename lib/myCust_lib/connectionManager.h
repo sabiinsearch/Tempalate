@@ -2,12 +2,14 @@
 #define __CONNNECTION_MANAGER_H__
 
 #include "Arduino.h"
+#include <WiFiManager.h>
 
 /*Connection Manager's attributes*/
 
 
 typedef struct {
 
+  WiFiManager wifi_manager;
   bool radio_status;  
   bool ble_status;
   bool Wifi_status;

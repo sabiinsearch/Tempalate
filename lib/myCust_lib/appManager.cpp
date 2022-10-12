@@ -318,11 +318,28 @@ void setWaterLevel_and_indicators(appManager* appMgr) {
 
  
 
- void checkConnections_and_reconnect(appManager* managr) {
+ void checkConnections_and_reconnect(void * pvParameters) { 
     
-    // Serial.print("Task to check connections is set @ Core ");
-    // Serial.println(xPortGetCoreID());
-
+    appManager* appMgr = (appManager*)pvParameters; 
+    Serial.print("checking connection set @ Core..");
+    Serial.println(xPortGetCoreID());
+    // Serial.print("\t");
+    // Serial.print("wifi : ");
+    // Serial.println(appMgr->conManager->wifi_manager.getWLStatusString());
+    for(;;) {
+      //;
+      
+      if((WIFI_AVAILABILITY==true) && (appMgr->conManager->wifi_manager.getWLStatusString()!= "WL_CONNECTED")) {
+        Serial.print("Wifi status..");
+        Serial.println(appMgr->conManager->wifi_manager.getWLStatusString());
+        digitalWrite(WIFI_LED,HIGH);
+        appMgr->conManager->Wifi_status = connectWiFi(appMgr->conManager);
+      }
+      if((MQTT_AVAILABILITY) && (appMgr->conManager->Wifi_status) && !(appMgr->conManager->mqtt_status)) {
+        digitalWrite(MQTT_LED,HIGH);
+        appMgr->conManager->mqtt_status = connectMQTT(appMgr->conManager);
+      }
+    }
  }
 
 
