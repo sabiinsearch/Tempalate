@@ -151,7 +151,7 @@ void initRGB(){
 
  void check_WT(appManager * appMgr) {
 
-    float threshold;
+    float threshold = 64.30;
     float reading;
 
       // set the threshold as per the capacity
