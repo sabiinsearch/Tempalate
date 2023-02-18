@@ -10,6 +10,12 @@
 #include "EnergyMonitoring.h"
 #include "receiverBoard.h"
 
+// Libraries for Load Cell
+#include <Arduino.h> 
+#include "EEPROM.h"
+#include "HX711.h"
+#include "soc/rtc.h"
+#include "esp32-hal-cpu.h"
 connectionManager conManagerr;
 
 /* constructor implementation */
@@ -20,8 +26,9 @@ void appManager_ctor(appManager * const me, int sw_val) {
   me->conManager = connectionManager_ctor(&conManagerr);
   Serial.println("Connection Manager set with App Manager");
   me->switch_val = sw_val;
-  me->waterLevel = analogRead(WT_sensor);
-  Serial.println("Water_Level indicators set...");
+ // me->waterLevel = analogRead(WT_sensor);
+  me->scale = setLoadCell(me);
+  Serial.print("Scale set with appMgr.. ");
   // broadcast_appMgr(me);
   Serial.print("AppManager set @ Core ");
   Serial.println(xPortGetCoreID());
@@ -74,7 +81,7 @@ void initRGB(){
   initRGB();
   pinMode(SW_pin, OUTPUT);
   pinMode(touch1, INPUT);
-  pinMode(WT_sensor, INPUT);
+ // pinMode(WT_sensor, INPUT);
   pinMode(A0,INPUT);
   pinMode(ACS_pin,INPUT);
 
@@ -89,6 +96,9 @@ void initRGB(){
   pinMode(LED4_D,OUTPUT);
   pinMode(LED5_U,OUTPUT);
   pinMode(LED5_D,OUTPUT);
+
+  // pinMode(data_pin,INPUT);
+  // pinMode(clk_pin,OUTPUT);
 
  }
  
@@ -119,8 +129,45 @@ void initRGB(){
   vTaskDelay(10);
  }
 
+// initialize the Scale
+    
+    HX711 setLoadCell(appManager * appMgr) {
+   
+    HX711 scale_local;
+    
+    //rtc_clk_cpu_freq_set_config(RTC_CPU_FREQ_80M);   //  RTC_CPU_FREQ_80M
+    setCpuFrequencyMhz(80); 
+    scale_local.begin(data_pin,clk_pin);
+    scale_local.set_scale(calibration_factor);
+    Serial.print("Scale Calibrated... ");  
+
+    if(scale_local.is_ready()) {
+       Serial.print("Scale is ready..");  
+    }
+    
+    return scale_local;
+ }
+
+
  void check_WT(appManager * appMgr) {
 
+    float threshold;
+    float reading;
+
+      // set the threshold as per the capacity
+    if(tankCapacity_actual==750) {
+      threshold = 140.00;
+    }
+    if(tankCapacity_actual ==5) {
+      threshold = 64.30;
+    }
+   
+    reading = ((appMgr->scale.get_units())-threshold);
+    reading = (float)(int)(reading*1)/1;                   // add number of 'zeros' as required decimal
+    appMgr->waterLevel = reading;
+   // appMgr->waterLevel = appMgr->scale.get_units();
+    
+/*
   uint32_t raw; 
   uint32_t Vin = 3.3;
   uint32_t level;
@@ -135,24 +182,24 @@ void initRGB(){
    
 
     if(0 < level < 1) {
-        appMgr->waterLevel = 5;  
-    }
-    else if((0 < level ) && (level< 2)) {
-        appMgr->waterLevel = 4;  
-    }
-    else if((1 < level ) && (level < 3)) {
-        appMgr->waterLevel = 3;  
-    }
-    else if((2 < level ) && (level < 4)) {
-        appMgr->waterLevel = 2;  
-    }
-    else if((4 < level ) && (level < 9)) {
-        appMgr->waterLevel = 1;  
-    }
-    else if((10 < level ) && (level < 13 )) {
         appMgr->waterLevel = 0;  
     }
-
+    else if((0 < level ) && (level< 2)) {
+        appMgr->waterLevel = 1;  
+    }
+    else if((1 < level ) && (level < 3)) {
+        appMgr->waterLevel = 2;  
+    }
+    else if((2 < level ) && (level < 4)) {
+        appMgr->waterLevel = 3;  
+    }
+    else if((4 < level ) && (level < 9)) {
+        appMgr->waterLevel = 4;  
+    }
+    else if((10 < level ) && (level < 13 )) {
+        appMgr->waterLevel = 5;  
+    }
+*/
    // appMgr->waterLevel = level;
     
  }
@@ -167,6 +214,7 @@ void initRGB(){
         while (digitalRead(touch1) == HIGH) {
           press_end = millis();
           count_press = press_end-press_start;
+          
            if((count_press>3000) && (WIFI_AVAILABILITY)) {
             Serial.println("Wifi Resetting.."); 
             digitalWrite(WIFI_LED,HIGH);
@@ -182,12 +230,12 @@ void initRGB(){
           //check_WT(appMgr);
           if (appMgr->switch_val == 1){
             Serial.println("Energy Monitoring Off..");
-            digitalWrite(SW_pin, 1);
+            digitalWrite(SW_pin, 0);
             //LED_allOff();
             appMgr->switch_val= 0;
           } else {
             Serial.println("Energy Monitoring On..");
-            digitalWrite(SW_pin, 0);
+            digitalWrite(SW_pin, 1);
             //LED_allOn();
             appMgr->switch_val = 1;
           }
@@ -199,10 +247,10 @@ void initRGB(){
  }
 
 // Method for setting water level indicators
-void setWaterLevel_and_indicators(appManager* appMgr) {
-
+void checkWaterLevel_and_indicators(appManager* appMgr) {
+//      Serial.println("In checkWaterLevel_and_indicators()");
     check_WT(appMgr);  
-  
+//      Serial.println("Setting indicators..");
        switch((int)appMgr->waterLevel) {
 
          case 0:

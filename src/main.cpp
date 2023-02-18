@@ -14,6 +14,7 @@
 #include "connectionManager.h"
 #include "appManager.h"
 #include "EnergyMonitoring.h"
+
                   
 
 // my Managers
@@ -23,7 +24,7 @@ unsigned long prev_pub_time=0;
 // setup function
 void setup() {
 
-  Serial.begin(9800);
+  Serial.begin(9600);
   while (!Serial);
   delay(1000);
 	
@@ -45,19 +46,22 @@ void setup() {
 
 //  Task to monitor Energy
     xTaskCreatePinnedToCore(energy_consumption, "Task2", 10000, &managr, 0, NULL,  0);   
+//    Serial.println("first task created ");
 
 //  Task to monitor connectivity
     xTaskCreatePinnedToCore(checkConnections_and_reconnect, "Task3", 90000, &managr, 0, NULL,  1);   
-
+//    Serial.println("Second task created ");
 }
 /**
  * Logic that runs in Loop
  */
 void loop() { 
-    
+//    Serial.println("In loop..");
+  
    // Check touch and manage switch
     managr.switch_val = checkTouchDetected(&managr);
 
+//    Serial.println("Check detection done in loop()..");
     if( (managr.switch_val==0) && ((unsigned long)(millis() - prev_pub_time) >= PUBLISH_INTERVAL_OFF)) { 
       
              broadcast_appMgr(&managr);             
@@ -70,8 +74,11 @@ void loop() {
                 prev_pub_time = millis();            
       }              
 
+ //  Serial.println("Checking water level and setting indicators accordingly in loop..");
 
-   setWaterLevel_and_indicators(&managr);
+   checkWaterLevel_and_indicators(&managr);
+
+  //     Serial.println("Water level checked in loop..");
 
    if(managr.conManager->mqtt_status) {
        mqtt_loop();

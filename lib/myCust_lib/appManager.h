@@ -3,6 +3,7 @@
 
 #include "app_config.h"
 #include "connectionManager.h"
+#include "HX711.h"
 
 /*Application Manager's attributes*/
 
@@ -12,7 +13,8 @@ typedef struct {
 //   energyMonitoringManager eManager;
      float current_accomulated;
      int switch_val;
-     uint32_t waterLevel; 
+     float waterLevel; 
+     HX711 scale;
 
 } appManager;
 
@@ -21,10 +23,11 @@ void appManager_ctor(appManager * const me, int sw_val); // constructor
 void initBoard();   
 void LED_allOn();
 void LED_allOff();
+HX711 setLoadCell(appManager*);
 void broadcast_appMgr(appManager*);
 void check_WT(appManager*);
 int  checkTouchDetected(appManager*);
-void setWaterLevel_and_indicators(appManager*);
+void checkWaterLevel_and_indicators(appManager*);
 void checkConnections_and_reconnect(void * pvParameters);
 
 // functions to set LEDs as per status
