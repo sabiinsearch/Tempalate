@@ -24,9 +24,9 @@
 
 #define SW_pin             19
 #define ACS_pin            34      // Energy Sensor
-#define touch1             4       // Pin for capactitive touch sensor
-#define data_pin           13
-#define clk_pin            12
+#define touch1             4      // Pin 2 - for WT_PCB_V4.5
+#define data_pin           15     // Pin 16 - for WT_PCB_V4.5
+#define clk_pin            14     // Pin 4 - for WT_PCB_V4.5
 
 
 

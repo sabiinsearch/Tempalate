@@ -51,6 +51,13 @@ connectionManager * const connectionManager_ctor(connectionManager * const me ) 
    if(WIFI_AVAILABILITY) {
        initWiFi();
    }
+
+   if(WIFI_AVAILABILITY) {
+       if(connectWiFi(me)) {
+        Serial.println("Connected..");
+       }
+   }
+
 /*
   // Init Mqtt
   if(MQTT_AVAILABILITY) {

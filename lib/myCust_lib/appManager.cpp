@@ -114,7 +114,7 @@ void initRGB(){
   root["type"] = BOARD_TYPE;
   root["uniqueId"] = getBoard_ID();
   data["switch"] = appMgr->switch_val;
-  data["level"] = appMgr->waterLevel;
+  data["level_%"] = appMgr->waterLevel;
   data["energy"] = appMgr->current_accomulated;
   appMgr->current_accomulated = 0;
   data["timestamp"] = millis();
@@ -131,12 +131,13 @@ void initRGB(){
 
 // initialize the Scale
     
-    HX711 setLoadCell(appManager * appMgr) {
+HX711 setLoadCell(appManager * appMgr) {
    
     HX711 scale_local;
     
     //rtc_clk_cpu_freq_set_config(RTC_CPU_FREQ_80M);   //  RTC_CPU_FREQ_80M
     setCpuFrequencyMhz(80); 
+    Serial.print("Initialinzing scale... ");  
     scale_local.begin(data_pin,clk_pin);
     scale_local.set_scale(calibration_factor);
     Serial.print("Scale Calibrated... ");  
@@ -151,7 +152,8 @@ void initRGB(){
 
  void check_WT(appManager * appMgr) {
 
-    float threshold = 64.30;
+    float threshold ;
+    float tankfull_value;
     float reading;
 
       // set the threshold as per the capacity
@@ -159,13 +161,15 @@ void initRGB(){
       threshold = 140.00;
     }
     if(tankCapacity_actual ==5) {
-      threshold = 64.30;
+      threshold = 57.00;
+      tankfull_value = 80;
     }
-   
-    reading = ((appMgr->scale.get_units())-threshold);
-    reading = (float)(int)(reading*1)/1;                   // add number of 'zeros' as required decimal
-    appMgr->waterLevel = reading;
-   // appMgr->waterLevel = appMgr->scale.get_units();
+  
+      reading = ((appMgr->scale.get_units(10))-threshold);
+      reading = (float)(int)(reading*1)/1;                   // add number of 'zeros' as required decimal
+      reading = (reading/tankfull_value)*100;                // calculating the percentile
+      appMgr->waterLevel = reading;
+    //   appMgr->waterLevel = appMgr->scale.get_units();
     
 /*
   uint32_t raw; 

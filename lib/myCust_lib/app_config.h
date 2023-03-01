@@ -12,7 +12,7 @@
      #define RADIO_AVAILABILITY  false
      #define BLE_AVAILIBILITY    false
      #define WIFI_AVAILABILITY   true
-     #define MQTT_AVAILABILITY   false
+     #define MQTT_AVAILABILITY   true
 
 
 // Energy Monitoring configrations
@@ -32,7 +32,7 @@
     #define ORG             "rqeofj"
     #define BOARD_TYPE      "HB_Water"
     #define TOKEN           "1SatnamWaheguruJi"
-    #define SERVER          ORG ".messaging.internetofthings.ibmcloud.com";
+    #define SERVER          ORG".messaging.internetofthings.ibmcloud.com";
     #define PUB_TOPIC       "iot-2/evt/status/fmt/json"
     #define SUB_TOPIC       "iot-2/cmd/device/fmt/json"
     #define MQTT_USER       "use-token-auth"
