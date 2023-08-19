@@ -16,8 +16,8 @@
 
 
 // Energy Monitoring configrations
-    #define PUBLISH_INTERVAL_ON      2000L    // time in Minutes * sec in a min * milliseconds in sec
-    #define PUBLISH_INTERVAL_OFF     10000L    // time in Minutes * sec in a min * milliseconds in sec
+    #define PUBLISH_INTERVAL_ON      5000L    // time in Minutes * sec in a min * milliseconds in sec
+    #define PUBLISH_INTERVAL_OFF     5000L    // time in Minutes * sec in a min * milliseconds in sec
     #define VOLTAGE_IN               240       // Input Voltage
     #define VCC                      2.9
     #define SENSTIVITY               66       // 185mV/A for 5A, 100 mV/A for 20A and 66mV/A for 30A Module
