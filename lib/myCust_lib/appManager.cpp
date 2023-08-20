@@ -307,8 +307,8 @@ Serial.println("Sync Board with LC.");
   }
 
   appMgr->threshold = reading;
-  Serial.println("Threshold set as per Load Cell..");
-
+  Serial.print("Threshold as per Load Cell..");
+  Serial.print(appMgr->threshold);
 }
 
 
