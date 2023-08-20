@@ -247,13 +247,16 @@ HX711 setLoadCell(appManager * appMgr) {
         while (digitalRead(reset_pin) == LOW) {
           press_end = millis();
           count_press = press_end-press_start;  
-          if(count_press>5100) {
+          if(count_press>4500) {
+            setBoardWithLC(appMgr);
             break;
           }   
         }
+            Serial.print("Button pressed for: ");
+            Serial.println(count_press);
    // Action as per time period of pressing button
 
-     if((count_press >0) && (count_press<1500)) {
+     if((count_press >0) && (count_press<1000)) {
         
         bool flag = true;  //  to check if control goes to On or Off only
 
@@ -261,6 +264,7 @@ HX711 setLoadCell(appManager * appMgr) {
             Serial.println("Energy Monitoring Off..");
             setSwitchOff(appMgr);
             flag = false;
+            Serial.print("Flag is set to false..");
           } 
           
           if((appMgr->switch_val == 0) && (flag==true)) {
@@ -282,11 +286,7 @@ HX711 setLoadCell(appManager * appMgr) {
 
      }
 
-     if((count_press >3400) && (count_press<5000)) {
-        setBoardWithLC(appMgr);
-     }
-
-    }
+   }
     
  }
 
@@ -294,7 +294,7 @@ HX711 setLoadCell(appManager * appMgr) {
 
 void setBoardWithLC(appManager* appMgr) {
 
-Serial.println("Sync Board with LC.");
+  Serial.println("Sync Board with LC.");
   
   float reading;
 
@@ -307,7 +307,7 @@ Serial.println("Sync Board with LC.");
   }
 
   appMgr->threshold = reading;
-  Serial.print("Threshold as per Load Cell..");
+  Serial.print("Threshold set as per Load Cell..");
   Serial.print(appMgr->threshold);
 }
 
