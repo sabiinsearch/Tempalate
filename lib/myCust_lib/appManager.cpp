@@ -311,8 +311,8 @@ HX711 setLoadCell(appManager * appMgr) {
             Serial.println("Wifi Resetting.."); 
             digitalWrite(WIFI_LED,HIGH);
             digitalWrite(HEARTBEAT_LED,LOW);
-         // resetWifi(appMgr->conManager);      
-         // connectWiFi(appMgr->conManager);
+            resetWifi(appMgr->conManager);      
+            connectWiFi(appMgr->conManager);
 
      }
 
@@ -330,6 +330,8 @@ HX711 setLoadCell(appManager * appMgr) {
 void setBoardWithLC(appManager* appMgr) {
   preferences.begin("app_conf");
   Serial.println("Sync Board with LC.");
+
+  appMgr->scale = setLoadCell(appMgr);
   
   float reading;
 
