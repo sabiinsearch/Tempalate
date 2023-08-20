@@ -15,6 +15,7 @@ typedef struct {
      int switch_val;
      float waterLevel; 
      HX711 scale;
+     float threshold;
 
 } appManager;
 
@@ -25,10 +26,13 @@ void LED_allOn();
 void LED_allOff();
 HX711 setLoadCell(appManager*);
 void broadcast_appMgr(appManager*);
-void check_WT(appManager*);
+float check_WT(appManager*);
 int  checkTouchDetected(appManager*);
 void checkWaterLevel_and_indicators(appManager*);
 void checkConnections_and_reconnect(void * pvParameters);
+void setBoardWithLC(appManager*);
+void checkButtonPressed(appManager*);
+void setLevel(appManager*);
 
 // functions to set LEDs as per status
 

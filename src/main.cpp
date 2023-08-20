@@ -58,9 +58,9 @@ void setup() {
 void loop() { 
 //    Serial.println("In loop..");
   
-   // Check touch and manage switch
-    managr.switch_val = checkTouchDetected(&managr);
 
+          checkButtonPressed(&managr);
+   
 //    Serial.println("Check detection done in loop()..");
     if( (managr.switch_val==0) && ((unsigned long)(millis() - prev_pub_time) >= PUBLISH_INTERVAL_OFF)) { 
       
