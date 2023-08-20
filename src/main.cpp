@@ -60,7 +60,6 @@ void loop() {
   
 
           checkButtonPressed(&managr);
-          digitalWrite(reset_pin,HIGH); // unpress button
    
 //    Serial.println("Check detection done in loop()..");
     if( (managr.switch_val==0) && ((unsigned long)(millis() - prev_pub_time) >= PUBLISH_INTERVAL_OFF)) { 

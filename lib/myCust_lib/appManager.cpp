@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <ArduinoJson.h>
 
+
 // Custom Libraries
 #include "app_config.h"
 #include "appManager.h"
@@ -247,16 +248,17 @@ HX711 setLoadCell(appManager * appMgr) {
         while (digitalRead(reset_pin) == LOW) {
           press_end = millis();
           count_press = press_end-press_start;  
-          if(count_press>4500) {
-            setBoardWithLC(appMgr);
+          if(count_press>5000) {
             break;
           }   
         }
+
+            digitalWrite(reset_pin,HIGH); // unpress button        
             Serial.print("Button pressed for: ");
             Serial.println(count_press);
    // Action as per time period of pressing button
 
-     if((count_press >0) && (count_press<1000)) {
+     if((count_press >0) && (count_press<1500)) {
         
         bool flag = true;  //  to check if control goes to On or Off only
 
@@ -273,6 +275,7 @@ HX711 setLoadCell(appManager * appMgr) {
             }
           delay(100);             
           broadcast_appMgr(appMgr);
+
       }
      
         
@@ -284,6 +287,11 @@ HX711 setLoadCell(appManager * appMgr) {
          // resetWifi(appMgr->conManager);      
          // connectWiFi(appMgr->conManager);
 
+     }
+
+     if((count_press >3400) && (count_press<6000)) {
+
+              setBoardWithLC(appMgr);
      }
 
    }
