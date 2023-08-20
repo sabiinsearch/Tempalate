@@ -83,8 +83,9 @@ void initRGB(){
   pinMode(touch1, INPUT);
  // pinMode(WT_sensor, INPUT);
   pinMode(A0,INPUT);
-  pinMode(ACS_pin,INPUT);
+  pinMode(reset_pin,OUTPUT);
 
+  digitalWrite(reset_pin,HIGH);
   // setting Tank level LEDs
   pinMode(LED1_U,OUTPUT);
   pinMode(LED1_D,OUTPUT);
@@ -149,26 +150,19 @@ HX711 setLoadCell(appManager * appMgr) {
     return scale_local;
  }
 
+  void setLevel(appManager* appMgr, float reading) {
+      appMgr->waterLevel = reading;
+  }
 
- void check_WT(appManager * appMgr) {
+ float check_WT(appManager * appMgr) {
 
-    float threshold ;
-    float tankfull_value;
     float reading;
 
-      // set the threshold as per the capacity
-    if(tankCapacity_actual==750) {
-      threshold = 140.00;
-    }
-    if(tankCapacity_actual ==5) {
-      threshold = 57.00;
-      tankfull_value = 80;
-    }
-  
-      reading = ((appMgr->scale.get_units(10))-threshold);
+//      reading = ((appMgr->scale.get_units(10))-threshold);
+      reading = ((appMgr->scale.get_units(10)));
       reading = (float)(int)(reading*1)/1;                   // add number of 'zeros' as required decimal
-      reading = (reading/tankfull_value)*100;                // calculating the percentile
-      appMgr->waterLevel = reading;
+     // reading = (reading/tankfull_value)*100;                // calculating the percentile
+     // appMgr->waterLevel = reading;
     //   appMgr->waterLevel = appMgr->scale.get_units();
     
 /*
@@ -206,54 +200,100 @@ HX711 setLoadCell(appManager * appMgr) {
 */
    // appMgr->waterLevel = level;
     
+    return reading;
  }
 
 
- int checkTouchDetected(appManager* appMgr) {
-  if(digitalRead(touch1) == HIGH){
+ void checkButtonPressed(appManager* appMgr) {
+  
+    if((digitalRead(reset_pin))==LOW) {   // check if the button is pressed
         long press_start = millis();
         long press_end = press_start;
         int count_press = 0;
 
-        while (digitalRead(touch1) == HIGH) {
-          press_end = millis();
-          count_press = press_end-press_start;
-          
-           if((count_press>3000) && (WIFI_AVAILABILITY)) {
-            Serial.println("Wifi Resetting.."); 
-            digitalWrite(WIFI_LED,HIGH);
-            digitalWrite(HEARTBEAT_LED,LOW);
-            resetWifi(appMgr->conManager); // reset settings - wipe stored credentials for testing, these are stored by the esp library
-            connectWiFi(appMgr->conManager);
-            break;
-           }  
-        } 
-        
+    // count period of button pressed
 
-        if(count_press<2500) {
-          //check_WT(appMgr);
+        while (digitalRead(reset_pin) == LOW) {
+          press_end = millis();
+          count_press = press_end-press_start;  
+          if(count_press>5100) {
+            break;
+          }   
+        }
+   // Action as per time period of pressing button
+
+     if((count_press >0) && (count_press<1500)) {
+        
           if (appMgr->switch_val == 1){
             Serial.println("Energy Monitoring Off..");
             digitalWrite(SW_pin, 0);
             //LED_allOff();
             appMgr->switch_val= 0;
-          } else {
-            Serial.println("Energy Monitoring On..");
-            digitalWrite(SW_pin, 1);
-            //LED_allOn();
-            appMgr->switch_val = 1;
-          }
+          } 
+          else if(appMgr->switch_val == 0) {
+              Serial.println("Energy Monitoring On..");
+              digitalWrite(SW_pin, 1);
+              //LED_allOn();
+              appMgr->switch_val = 1;
+            }
           delay(100);             
-        } 
-        broadcast_appMgr(appMgr);
-  }
-  return appMgr->switch_val;
+          broadcast_appMgr(appMgr);
+        }
+     
+        
+     if((count_press >1500) && (count_press<3000)) {    // reset settings - wipe stored credentials for testing, these are stored by the esp library
+
+            Serial.println("Wifi Resetting.."); 
+            digitalWrite(WIFI_LED,HIGH);
+            digitalWrite(HEARTBEAT_LED,LOW);
+         // resetWifi(appMgr->conManager);      
+         // connectWiFi(appMgr->conManager);
+
+     }
+
+     if((count_press >3000) && (count_press<5000)) {
+        setBoardWithLC(appMgr);
+     }
+
+    }
+    
  }
+
+
+
+void setBoardWithLC(appManager* appMgr) {
+
+Serial.println("Sync Board with LC.");
+  
+  float reading;
+
+  setLevel(appMgr,0);  // reset level to zero 
+
+  reading = check_WT(appMgr);
+
+  if(reading<0) {
+     reading = reading * (-1);
+  }
+
+  appMgr->threshold = reading;
+  Serial.println("Sync done.");
+
+}
+
+
 
 // Method for setting water level indicators
 void checkWaterLevel_and_indicators(appManager* appMgr) {
 //      Serial.println("In checkWaterLevel_and_indicators()");
-    check_WT(appMgr);  
+     float reading = check_WT(appMgr);
+
+     if (reading<0) {
+       appMgr->waterLevel = reading+appMgr->threshold;
+     }
+     else {
+      appMgr->waterLevel = reading-appMgr->threshold;
+     }
+      
 //      Serial.println("Setting indicators..");
        switch((int)appMgr->waterLevel) {
 
