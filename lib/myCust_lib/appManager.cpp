@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <ArduinoJson.h>
 
+
 // Custom Libraries
 #include "app_config.h"
 #include "appManager.h"
@@ -13,28 +14,63 @@
 // Libraries for Load Cell
 #include <Arduino.h> 
 #include "EEPROM.h"
+#include "Preferences.h"
 #include "HX711.h"
 #include "soc/rtc.h"
 #include "esp32-hal-cpu.h"
 connectionManager conManagerr;
-
+Preferences preferences;
 /* constructor implementation */
 
-void appManager_ctor(appManager * const me, int sw_val) {
+void appManager_ctor(appManager * const me) {
+
+  // Initiate Preferences for saving 
+  preferences.begin("app_config",false);
+  
   initBoard();
   Serial.println("Board Initialized..");
-  me->conManager = connectionManager_ctor(&conManagerr);
-  Serial.println("Connection Manager set with App Manager");
-  me->switch_val = sw_val;
+
+    // Initial setting of Switch
+  setSwitchOn(me);
+
+  // get switch update from EEPROM / cloud 
+  getUpdateFrmCloud(me);
+
  // me->waterLevel = analogRead(WT_sensor);
   me->scale = setLoadCell(me);
   Serial.print("Scale set with appMgr.. ");
   // broadcast_appMgr(me);
+
+  me->conManager = connectionManager_ctor(&conManagerr);
+  Serial.println("Connection Manager set with App Manager");
+
   Serial.print("AppManager set @ Core ");
   Serial.println(xPortGetCoreID());
+
+
 }
 
 /* Function Implementation */
+
+// function to get switch status from cloud
+void getUpdateFrmCloud(appManager* appMgr) {
+
+  // Initiate preferences   
+     preferences.begin("app_conf",false);
+
+  // get switch value from cloud
+      appMgr->switch_val = preferences.getInt("switch_value");
+      Serial.print("Preferences Switch Value: ");
+      Serial.println(appMgr->switch_val);
+
+  // get threshold from cloud
+      appMgr->threshold = preferences.getFloat("threshold");
+      Serial.print("Preferences Threshold: ");
+      Serial.println(appMgr->threshold);
+
+      preferences.end();
+}
+
 
 // Setting the Tank LEDs accordingly
 void LED_allOff() {
@@ -83,8 +119,9 @@ void initRGB(){
   pinMode(touch1, INPUT);
  // pinMode(WT_sensor, INPUT);
   pinMode(A0,INPUT);
-  pinMode(ACS_pin,INPUT);
+  pinMode(reset_pin,OUTPUT);
 
+  digitalWrite(reset_pin,HIGH);
   // setting Tank level LEDs
   pinMode(LED1_U,OUTPUT);
   pinMode(LED1_D,OUTPUT);
@@ -129,6 +166,28 @@ void initRGB(){
   vTaskDelay(10);
  }
 
+void setSwitchOn(appManager* appMgr) {
+      // Initiate Preferences to save state
+      preferences.begin("app_conf",false);
+
+      digitalWrite(SW_pin, 1);
+      appMgr->switch_val = 1;
+      preferences.putInt("switch_value", appMgr->switch_val);
+      preferences.end();
+
+}
+
+void setSwitchOff(appManager* appMgr) {
+      // Initiate Preferences to save state
+      preferences.begin("app_conf",false);
+
+      digitalWrite(SW_pin, 0);
+      appMgr->switch_val = 0;
+
+      preferences.putInt("switch_value", appMgr->switch_val);
+      preferences.end();
+
+}
 // initialize the Scale
     
 HX711 setLoadCell(appManager * appMgr) {
@@ -149,26 +208,19 @@ HX711 setLoadCell(appManager * appMgr) {
     return scale_local;
  }
 
+  void setLevel(appManager* appMgr, float reading) {
+      appMgr->waterLevel = reading;
+  }
 
- void check_WT(appManager * appMgr) {
+ float check_WT(appManager * appMgr) {
 
-    float threshold ;
-    float tankfull_value;
     float reading;
 
-      // set the threshold as per the capacity
-    if(tankCapacity_actual==750) {
-      threshold = 140.00;
-    }
-    if(tankCapacity_actual ==5) {
-      threshold = 57.00;
-      tankfull_value = 80;
-    }
-  
-      reading = ((appMgr->scale.get_units(10))-threshold);
+//      reading = ((appMgr->scale.get_units(10))-threshold);
+      reading = ((appMgr->scale.get_units(10)));
       reading = (float)(int)(reading*1)/1;                   // add number of 'zeros' as required decimal
-      reading = (reading/tankfull_value)*100;                // calculating the percentile
-      appMgr->waterLevel = reading;
+     // reading = (reading/tankfull_value)*100;                // calculating the percentile
+     // appMgr->waterLevel = reading;
     //   appMgr->waterLevel = appMgr->scale.get_units();
     
 /*
@@ -206,54 +258,112 @@ HX711 setLoadCell(appManager * appMgr) {
 */
    // appMgr->waterLevel = level;
     
+    return reading;
  }
 
 
- int checkTouchDetected(appManager* appMgr) {
-  if(digitalRead(touch1) == HIGH){
+ void checkButtonPressed(appManager* appMgr) {
+  
+    if((digitalRead(reset_pin))==LOW) {   // check if the button is pressed
         long press_start = millis();
         long press_end = press_start;
         int count_press = 0;
 
-        while (digitalRead(touch1) == HIGH) {
+    // count period of button pressed
+
+        while (digitalRead(reset_pin) == LOW) {
           press_end = millis();
-          count_press = press_end-press_start;
+          count_press = press_end-press_start;  
+          if(count_press>5000) {            
+            break;
+          }   
+        }
+
+            digitalWrite(reset_pin,HIGH); // unpress button        
+            Serial.print("Button pressed for: ");
+            Serial.println(count_press);
+   // Action as per time period of pressing button
+
+     if((count_press >0) && (count_press<1500)) {
+        
+        bool flag = true;  //  to check if control goes to On or Off only
+
+          if (appMgr->switch_val == 1){
+            Serial.println("Energy Monitoring Off..");
+            setSwitchOff(appMgr);
+            flag = false;
+            Serial.print("Flag is set to false..");
+          } 
           
-           if((count_press>3000) && (WIFI_AVAILABILITY)) {
+          if((appMgr->switch_val == 0) && (flag==true)) {
+              Serial.println("Energy Monitoring On..");
+              setSwitchOn(appMgr);
+            }
+          delay(100);             
+          broadcast_appMgr(appMgr);
+
+      }
+     
+        
+     if((count_press >1400) && (count_press<3500)) {    // reset settings - wipe stored credentials for testing, these are stored by the esp library
+
             Serial.println("Wifi Resetting.."); 
             digitalWrite(WIFI_LED,HIGH);
             digitalWrite(HEARTBEAT_LED,LOW);
-            resetWifi(appMgr->conManager); // reset settings - wipe stored credentials for testing, these are stored by the esp library
+            resetWifi(appMgr->conManager);      
             connectWiFi(appMgr->conManager);
-            break;
-           }  
-        } 
-        
 
-        if(count_press<2500) {
-          //check_WT(appMgr);
-          if (appMgr->switch_val == 1){
-            Serial.println("Energy Monitoring Off..");
-            digitalWrite(SW_pin, 0);
-            //LED_allOff();
-            appMgr->switch_val= 0;
-          } else {
-            Serial.println("Energy Monitoring On..");
-            digitalWrite(SW_pin, 1);
-            //LED_allOn();
-            appMgr->switch_val = 1;
-          }
-          delay(100);             
-        } 
-        broadcast_appMgr(appMgr);
-  }
-  return appMgr->switch_val;
+     }
+
+     if((count_press >3400) && (count_press<6000)) {
+
+              setBoardWithLC(appMgr);
+     }
+
+   }
+    
  }
+
+
+
+void setBoardWithLC(appManager* appMgr) {
+  preferences.begin("app_conf");
+  Serial.println("Sync Board with LC.");
+
+  appMgr->scale = setLoadCell(appMgr);
+  
+  float reading;
+
+  setLevel(appMgr,0);  // reset level to zero 
+
+  reading = check_WT(appMgr);
+
+  if(reading<0) {
+     reading = reading * (-1);
+  }
+
+  
+  preferences.putFloat("threshold",reading);
+  appMgr->threshold = reading;
+  Serial.print("Threshold set in Preferences and appManager as per Load Cell..");
+  Serial.println(appMgr->threshold);
+  preferences.end();
+}
+
+
 
 // Method for setting water level indicators
 void checkWaterLevel_and_indicators(appManager* appMgr) {
 //      Serial.println("In checkWaterLevel_and_indicators()");
-    check_WT(appMgr);  
+     float reading = check_WT(appMgr);
+
+     if (reading<0) {
+       appMgr->waterLevel = reading+appMgr->threshold;
+     }
+     else {
+      appMgr->waterLevel = reading-appMgr->threshold;
+     }
+      
 //      Serial.println("Setting indicators..");
        switch((int)appMgr->waterLevel) {
 
