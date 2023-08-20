@@ -33,6 +33,7 @@ void checkConnections_and_reconnect(void * pvParameters);
 void setBoardWithLC(appManager*);
 void checkButtonPressed(appManager*);
 void setLevel(appManager*);
+void getUpdateFrmCloud(appManager*);
 
 // functions to set LEDs as per status
 

@@ -36,10 +36,13 @@ void setup() {
 
   LED_allOff();
   //digitalWrite(touch1, 0);
-
+ 
   // Initial setting of Switch
   digitalWrite(SW_pin, 1);
 
+  // get switch update from cloud
+  getUpdateFrmCloud(&managr);
+ 
   // Initiating Manager
   Serial.println("Initializing App Manager..");
   appManager_ctor(&managr,0);
@@ -51,6 +54,7 @@ void setup() {
 //  Task to monitor connectivity
     xTaskCreatePinnedToCore(checkConnections_and_reconnect, "Task3", 90000, &managr, 0, NULL,  1);   
 //    Serial.println("Second task created ");
+
 }
 /**
  * Logic that runs in Loop

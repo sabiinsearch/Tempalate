@@ -36,6 +36,12 @@ void appManager_ctor(appManager * const me, int sw_val) {
 
 /* Function Implementation */
 
+// function to get switch status from cloud
+void getUpdateFrmCloud(appManager*) {
+
+}
+
+
 // Setting the Tank LEDs accordingly
 void LED_allOff() {
    digitalWrite(LED1_U,HIGH);
