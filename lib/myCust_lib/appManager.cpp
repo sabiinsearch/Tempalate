@@ -14,14 +14,18 @@
 // Libraries for Load Cell
 #include <Arduino.h> 
 #include "EEPROM.h"
+#include "Preferences.h"
 #include "HX711.h"
 #include "soc/rtc.h"
 #include "esp32-hal-cpu.h"
 connectionManager conManagerr;
-
+Preferences preferences;
 /* constructor implementation */
 
 void appManager_ctor(appManager * const me) {
+
+  // Initiate Preferences for saving 
+  preferences.begin("app_config",false);
   
   initBoard();
   Serial.println("Board Initialized..");
@@ -29,7 +33,7 @@ void appManager_ctor(appManager * const me) {
     // Initial setting of Switch
   setSwitchOn(me);
 
-  // get switch update from cloud
+  // get switch update from EEPROM / cloud 
   getUpdateFrmCloud(me);
 
  // me->waterLevel = analogRead(WT_sensor);
@@ -49,12 +53,22 @@ void appManager_ctor(appManager * const me) {
 /* Function Implementation */
 
 // function to get switch status from cloud
-void getUpdateFrmCloud(appManager*) {
+void getUpdateFrmCloud(appManager* appMgr) {
+
+  // Initiate preferences   
+     preferences.begin("app_conf",false);
 
   // get switch value from cloud
+      appMgr->switch_val = preferences.getInt("switch_value");
+      Serial.print("Preferences Switch Value: ");
+      Serial.println(appMgr->switch_val);
 
   // get threshold from cloud
+      appMgr->threshold = preferences.getFloat("threshold");
+      Serial.print("Preferences Threshold: ");
+      Serial.println(appMgr->threshold);
 
+      preferences.end();
 }
 
 
@@ -153,14 +167,27 @@ void initRGB(){
  }
 
 void setSwitchOn(appManager* appMgr) {
+      // Initiate Preferences to save state
+      preferences.begin("app_config",false);
+
       digitalWrite(SW_pin, 1);
       appMgr->switch_val = 1;
+
+      preferences.putInt("switch_value", appMgr->switch_val);
+      preferences.end();
 
 }
 
 void setSwitchOff(appManager* appMgr) {
+      // Initiate Preferences to save state
+      preferences.begin("app_config",false);
+
       digitalWrite(SW_pin, 0);
       appMgr->switch_val = 0;
+
+      preferences.putInt("switch_value", appMgr->switch_val);
+      preferences.end();
+
 }
 // initialize the Scale
     
@@ -301,7 +328,7 @@ HX711 setLoadCell(appManager * appMgr) {
 
 
 void setBoardWithLC(appManager* appMgr) {
-
+  preferences.begin("app_conf");
   Serial.println("Sync Board with LC.");
   
   float reading;
@@ -314,9 +341,12 @@ void setBoardWithLC(appManager* appMgr) {
      reading = reading * (-1);
   }
 
+  
+  preferences.putFloat("threshold",reading);
   appMgr->threshold = reading;
-  Serial.print("Threshold set as per Load Cell..");
-  Serial.print(appMgr->threshold);
+  Serial.print("Threshold set in Preferences and appManager as per Load Cell..");
+  Serial.println(appMgr->threshold);
+  preferences.end();
 }
 
 
