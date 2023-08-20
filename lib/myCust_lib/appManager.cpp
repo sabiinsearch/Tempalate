@@ -248,7 +248,7 @@ HX711 setLoadCell(appManager * appMgr) {
         while (digitalRead(reset_pin) == LOW) {
           press_end = millis();
           count_press = press_end-press_start;  
-          if(count_press>5000) {
+          if(count_press>5000) {            
             break;
           }   
         }
