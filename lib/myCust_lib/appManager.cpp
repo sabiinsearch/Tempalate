@@ -168,11 +168,10 @@ void initRGB(){
 
 void setSwitchOn(appManager* appMgr) {
       // Initiate Preferences to save state
-      preferences.begin("app_config",false);
+      preferences.begin("app_conf",false);
 
       digitalWrite(SW_pin, 1);
       appMgr->switch_val = 1;
-
       preferences.putInt("switch_value", appMgr->switch_val);
       preferences.end();
 
@@ -180,7 +179,7 @@ void setSwitchOn(appManager* appMgr) {
 
 void setSwitchOff(appManager* appMgr) {
       // Initiate Preferences to save state
-      preferences.begin("app_config",false);
+      preferences.begin("app_conf",false);
 
       digitalWrite(SW_pin, 0);
       appMgr->switch_val = 0;
