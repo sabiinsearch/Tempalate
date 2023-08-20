@@ -20,24 +20,39 @@ connectionManager conManagerr;
 
 /* constructor implementation */
 
-void appManager_ctor(appManager * const me, int sw_val) {
+void appManager_ctor(appManager * const me) {
+  
   initBoard();
   Serial.println("Board Initialized..");
-  me->conManager = connectionManager_ctor(&conManagerr);
-  Serial.println("Connection Manager set with App Manager");
-  me->switch_val = sw_val;
+
+    // Initial setting of Switch
+  setSwitchOn(me);
+
+  // get switch update from cloud
+  getUpdateFrmCloud(me);
+
  // me->waterLevel = analogRead(WT_sensor);
   me->scale = setLoadCell(me);
   Serial.print("Scale set with appMgr.. ");
   // broadcast_appMgr(me);
+
+  me->conManager = connectionManager_ctor(&conManagerr);
+  Serial.println("Connection Manager set with App Manager");
+
   Serial.print("AppManager set @ Core ");
   Serial.println(xPortGetCoreID());
+
+
 }
 
 /* Function Implementation */
 
 // function to get switch status from cloud
 void getUpdateFrmCloud(appManager*) {
+
+  // get switch value from cloud
+
+  // get threshold from cloud
 
 }
 
@@ -136,6 +151,16 @@ void initRGB(){
   vTaskDelay(10);
  }
 
+void setSwitchOn(appManager* appMgr) {
+      digitalWrite(SW_pin, 1);
+      appMgr->switch_val = 1;
+
+}
+
+void setSwitchOff(appManager* appMgr) {
+      digitalWrite(SW_pin, 0);
+      appMgr->switch_val = 0;
+}
 // initialize the Scale
     
 HX711 setLoadCell(appManager * appMgr) {
@@ -230,24 +255,24 @@ HX711 setLoadCell(appManager * appMgr) {
 
      if((count_press >0) && (count_press<1500)) {
         
+        bool flag = true;  //  to check if control goes to On or Off only
+
           if (appMgr->switch_val == 1){
             Serial.println("Energy Monitoring Off..");
-            digitalWrite(SW_pin, 0);
-            //LED_allOff();
-            appMgr->switch_val= 0;
+            setSwitchOff(appMgr);
+            flag = false;
           } 
-          else if(appMgr->switch_val == 0) {
+          
+          if((appMgr->switch_val == 0) && (flag==true)) {
               Serial.println("Energy Monitoring On..");
-              digitalWrite(SW_pin, 1);
-              //LED_allOn();
-              appMgr->switch_val = 1;
+              setSwitchOn(appMgr);
             }
           delay(100);             
           broadcast_appMgr(appMgr);
-        }
+      }
      
         
-     if((count_press >1500) && (count_press<3000)) {    // reset settings - wipe stored credentials for testing, these are stored by the esp library
+     if((count_press >1400) && (count_press<3500)) {    // reset settings - wipe stored credentials for testing, these are stored by the esp library
 
             Serial.println("Wifi Resetting.."); 
             digitalWrite(WIFI_LED,HIGH);
@@ -257,7 +282,7 @@ HX711 setLoadCell(appManager * appMgr) {
 
      }
 
-     if((count_press >3000) && (count_press<5000)) {
+     if((count_press >3400) && (count_press<5000)) {
         setBoardWithLC(appMgr);
      }
 
@@ -282,7 +307,7 @@ Serial.println("Sync Board with LC.");
   }
 
   appMgr->threshold = reading;
-  Serial.println("Sync done.");
+  Serial.println("Threshold set as per Load Cell..");
 
 }
 

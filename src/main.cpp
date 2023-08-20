@@ -37,15 +37,11 @@ void setup() {
   LED_allOff();
   //digitalWrite(touch1, 0);
  
-  // Initial setting of Switch
-  digitalWrite(SW_pin, 1);
-
-  // get switch update from cloud
-  getUpdateFrmCloud(&managr);
  
   // Initiating Manager
   Serial.println("Initializing App Manager..");
-  appManager_ctor(&managr,0);
+  appManager_ctor(&managr);
+
 
 //  Task to monitor Energy
     xTaskCreatePinnedToCore(energy_consumption, "Task2", 10000, &managr, 0, NULL,  0);   

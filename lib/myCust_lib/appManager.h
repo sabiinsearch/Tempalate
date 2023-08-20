@@ -19,7 +19,7 @@ typedef struct {
 
 } appManager;
 
-void appManager_ctor(appManager * const me, int sw_val); // constructor
+void appManager_ctor(appManager * const me); // constructor
 
 void initBoard();   
 void LED_allOn();
@@ -31,6 +31,8 @@ int  checkTouchDetected(appManager*);
 void checkWaterLevel_and_indicators(appManager*);
 void checkConnections_and_reconnect(void * pvParameters);
 void setBoardWithLC(appManager*);
+void setSwitchOn(appManager*);
+void setSwitchOff(appManager*);
 void checkButtonPressed(appManager*);
 void setLevel(appManager*);
 void getUpdateFrmCloud(appManager*);
