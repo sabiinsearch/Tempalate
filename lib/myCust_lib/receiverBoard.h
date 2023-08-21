@@ -23,9 +23,9 @@
 // DECLARE OTHER PARTS OF RECEIVER BOARD
 
 #define SW_pin             21
-#define ACS_pin            34      // Energy Sensor
+#define ACS_pin            35      // Energy Sensor
 #define touch1             4      // Pin 2 - for WT_PCB_V4.5
-#define data_pin           35     // Pin 16 - for WT_PCB_V4.5
+#define data_pin           34     // Pin 16 - for WT_PCB_V4.5
 #define clk_pin            12     // Pin 4 - for WT_PCB_V4.5
 #define reset_pin          19
 
