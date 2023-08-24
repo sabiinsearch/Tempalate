@@ -74,29 +74,19 @@ void getUpdateFrmCloud(appManager* appMgr) {
 
 // Setting the Tank LEDs accordingly
 void LED_allOff() {
-   digitalWrite(LED1_U,HIGH);
-   digitalWrite(LED1_D,HIGH);
-   digitalWrite(LED2_U,HIGH);
-   digitalWrite(LED2_D,HIGH);
-   digitalWrite(LED3_U,HIGH);
-   digitalWrite(LED3_D,HIGH);
-   digitalWrite(LED4_U,HIGH);
-   digitalWrite(LED4_D,HIGH);
-   digitalWrite(LED5_U,HIGH);
-   digitalWrite(LED5_D,HIGH);
+   digitalWrite(LED1,HIGH);
+   digitalWrite(LED2,HIGH);
+   digitalWrite(LED3,HIGH);
+   digitalWrite(LED4,HIGH);
+   digitalWrite(LED5,HIGH);
 }
 
 void LED_allOn() {
-   digitalWrite(LED1_U,LOW);
-   digitalWrite(LED1_D,LOW);
-   digitalWrite(LED2_U,LOW);
-   digitalWrite(LED2_D,LOW);
-   digitalWrite(LED3_U,LOW);
-   digitalWrite(LED3_D,LOW);
-   digitalWrite(LED4_U,LOW);
-   digitalWrite(LED4_D,LOW);
-   digitalWrite(LED5_U,LOW);
-   digitalWrite(LED5_D,LOW);
+   digitalWrite(LED1,LOW);
+   digitalWrite(LED2,LOW);
+   digitalWrite(LED3,LOW);
+   digitalWrite(LED4,LOW);
+   digitalWrite(LED5,LOW);
 }
 
 void initRGB(){
@@ -123,20 +113,14 @@ void initRGB(){
 
   digitalWrite(reset_pin,HIGH);
   // setting Tank level LEDs
-  pinMode(LED1_U,OUTPUT);
-  pinMode(LED1_D,OUTPUT);
-  pinMode(LED2_U,OUTPUT);
-  pinMode(LED2_D,OUTPUT);
-  pinMode(LED3_U,OUTPUT);
-  pinMode(LED3_D,OUTPUT);
-  pinMode(LED4_U,OUTPUT);
-  pinMode(LED4_D,OUTPUT);
-  pinMode(LED5_U,OUTPUT);
-  pinMode(LED5_D,OUTPUT);
+  pinMode(LED1,OUTPUT);
+  pinMode(LED2,OUTPUT);
+  pinMode(LED3,OUTPUT);
+  pinMode(LED4,OUTPUT);
+  pinMode(LED5,OUTPUT);
 
   // pinMode(data_pin,INPUT);
   // pinMode(clk_pin,OUTPUT);
-
  }
  
  void broadcast_appMgr(appManager * appMgr) {
@@ -368,110 +352,66 @@ void checkWaterLevel_and_indicators(appManager* appMgr) {
        switch((int)appMgr->waterLevel) {
 
          case 0:
-           digitalWrite(LED1_U,HIGH);
-           digitalWrite(LED2_U,HIGH);
-           digitalWrite(LED3_U,HIGH);
-           digitalWrite(LED4_U,HIGH);
-           digitalWrite(LED5_U,HIGH);
-
-           digitalWrite(LED1_D,LOW);          
-           digitalWrite(LED2_D,LOW);          
-           digitalWrite(LED3_D,LOW);           
-           digitalWrite(LED4_D,LOW);           
-           digitalWrite(LED5_D,LOW);
-            break;
+           digitalWrite(LED1,HIGH);
+           digitalWrite(LED2,HIGH);
+           digitalWrite(LED3,HIGH);
+           digitalWrite(LED4,HIGH);
+           digitalWrite(LED5,HIGH);
 
          case 1:
-           digitalWrite(LED1_U,LOW);
-           digitalWrite(LED2_U,HIGH);
-           digitalWrite(LED3_U,HIGH);
-           digitalWrite(LED4_U,HIGH);
-           digitalWrite(LED5_U,HIGH);
-
-           digitalWrite(LED1_D,HIGH);          
-           digitalWrite(LED2_D,LOW);          
-           digitalWrite(LED3_D,LOW);           
-           digitalWrite(LED4_D,LOW);           
-           digitalWrite(LED5_D,LOW);
+           digitalWrite(LED1,LOW);
+           digitalWrite(LED2,HIGH);
+           digitalWrite(LED3,HIGH);
+           digitalWrite(LED4,HIGH);
+           digitalWrite(LED5,HIGH);
             break;
 
          case 2:
 
-           digitalWrite(LED1_U,LOW);
-           digitalWrite(LED2_U,LOW);
-           digitalWrite(LED3_U,HIGH);
-           digitalWrite(LED4_U,HIGH);
-           digitalWrite(LED5_U,HIGH);
-
-           digitalWrite(LED1_D,HIGH);          
-           digitalWrite(LED2_D,HIGH);          
-           digitalWrite(LED3_D,LOW);           
-           digitalWrite(LED4_D,LOW);           
-           digitalWrite(LED5_D,LOW);
+           digitalWrite(LED1,LOW);
+           digitalWrite(LED2,LOW);
+           digitalWrite(LED3,HIGH);
+           digitalWrite(LED4,HIGH);
+           digitalWrite(LED5,HIGH);
 
             break;
 
          case 3:
 
-           digitalWrite(LED1_U,LOW);
-           digitalWrite(LED2_U,LOW);
-           digitalWrite(LED3_U,LOW);
-           digitalWrite(LED4_U,HIGH);
-           digitalWrite(LED5_U,HIGH);
-
-           digitalWrite(LED1_D,HIGH);          
-           digitalWrite(LED2_D,HIGH);          
-           digitalWrite(LED3_D,HIGH);           
-           digitalWrite(LED4_D,LOW);           
-           digitalWrite(LED5_D,LOW);
+           digitalWrite(LED1,LOW);
+           digitalWrite(LED2,LOW);
+           digitalWrite(LED3,LOW);
+           digitalWrite(LED4,HIGH);
+           digitalWrite(LED5,HIGH);
 
             break;
 
          case 4:
 
-           digitalWrite(LED1_U,LOW);
-           digitalWrite(LED2_U,LOW);
-           digitalWrite(LED3_U,LOW);
-           digitalWrite(LED4_U,LOW);
-           digitalWrite(LED5_U,HIGH);
-
-           digitalWrite(LED1_D,HIGH);          
-           digitalWrite(LED2_D,HIGH);          
-           digitalWrite(LED3_D,HIGH);           
-           digitalWrite(LED4_D,HIGH);           
-           digitalWrite(LED5_D,LOW);
-
+           digitalWrite(LED1,LOW);
+           digitalWrite(LED2,LOW);
+           digitalWrite(LED3,LOW);
+           digitalWrite(LED4,LOW);
+           digitalWrite(LED5,HIGH);
             break;
 
          case 5:
 
-           digitalWrite(LED1_U,LOW);
-           digitalWrite(LED2_U,LOW);
-           digitalWrite(LED3_U,LOW);
-           digitalWrite(LED4_U,LOW);
-           digitalWrite(LED5_U,LOW);
-
-           digitalWrite(LED1_D,HIGH);          
-           digitalWrite(LED2_D,HIGH);          
-           digitalWrite(LED3_D,HIGH);           
-           digitalWrite(LED4_D,HIGH);           
-           digitalWrite(LED5_D,HIGH);
+           digitalWrite(LED1,LOW);
+           digitalWrite(LED2,LOW);
+           digitalWrite(LED3,LOW);
+           digitalWrite(LED4,LOW);
+           digitalWrite(LED5,LOW);
 
             break;
 
          default:
 
-           digitalWrite(LED1_U,HIGH);
-           digitalWrite(LED2_U,HIGH);
-           digitalWrite(LED3_U,HIGH);
-           digitalWrite(LED4_U,HIGH);
-           digitalWrite(LED5_U,HIGH);
-
-           digitalWrite(LED1_D,LOW);          
-           digitalWrite(LED2_D,LOW);          
-           digitalWrite(LED3_D,LOW);           
-           digitalWrite(LED4_D,LOW);           
-           digitalWrite(LED5_D,LOW);
+           digitalWrite(LED1,HIGH);
+           digitalWrite(LED2,HIGH);
+           digitalWrite(LED3,HIGH);
+           digitalWrite(LED4,HIGH);
+           digitalWrite(LED5,HIGH);
 
             break;               
        }
