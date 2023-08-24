@@ -48,7 +48,7 @@ void setup() {
 //    Serial.println("first task created ");
 
 //  Task to monitor connectivity
-    xTaskCreatePinnedToCore(checkConnections_and_reconnect, "Task3", 90000, &managr, 0, NULL,  1);   
+    xTaskCreatePinnedToCore(checkConnections_and_reconnect, "Task3", 90000, &managr, 0, NULL,  0);   
 //    Serial.println("Second task created ");
 
 }
