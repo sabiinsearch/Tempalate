@@ -293,19 +293,17 @@ void publishOnMqtt(String data, connectionManager * con) {
 }
 
 void publishData(String data, connectionManager * con) {
-
-    //  publishOnRadio(data,con);
-    if (!(con->Wifi_status) && MQTT_AVAILABILITY && WIFI_AVAILABILITY && !(con->mqtt_status)) {
-       Serial.println("connecting to cloud.......");
-       if (con->Wifi_status = connectWiFi(con)) { 
-         if (con->mqtt_status = connectMQTT(con)) {
-           publishOnMqtt(data, con);
-         } 
-       }
+ 
+    if(con->radio_status) {
+      publishOnRadio(data,con);
     }
-     
-
+  
+    if (con->mqtt_status) {
+       publishOnMqtt(data, con);
+    } 
+       
 }
+     
 
 
 void print_communication() {
