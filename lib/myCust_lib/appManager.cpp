@@ -488,6 +488,15 @@ void checkWaterLevel_and_indicators(appManager* appMgr) {
     // Serial.print("\t");
     // Serial.print("wifi : ");
     // Serial.println(appMgr->conManager->wifi_manager.getWLStatusString());
+
+   if(RADIO_AVAILABILITY){
+      initRadio(appMgr->conManager);
+      Serial.print(" Ready to print ");
+   }
+      if(WIFI_AVAILABILITY) {
+        initWiFi();
+      }
+
     for(;;) {
       //;
       

@@ -4,6 +4,11 @@
 // for WiFi, LoRa and mqtt
 
 #include <WiFiManager.h> 
+#include "WiFi.h"
+#include "WiFiGeneric.h"
+#include "WiFiSTA.h"
+
+
 #include <LoRa.h>
 #include <PubSubClient.h>   // for Mqtt
 
@@ -40,35 +45,6 @@ char mqttPassword[] = MQTT_PASSWORD;
 /* constructor implementation */
 
 connectionManager * const connectionManager_ctor(connectionManager * const me ) {
-   // me->ble_status = ble_status;
-  /*
-   if(RADIO_AVAILABILITY){
-      initRadio(me);
-      Serial.print(" Ready to print ");
-   }
-*/
-   // Init WiFi
-   if(WIFI_AVAILABILITY) {
-       initWiFi();
-   }
-
-   if(WIFI_AVAILABILITY) {
-       if(connectWiFi(me)) {
-        Serial.println("Connected..");
-       }
-   }
-
-/*
-  // Init Mqtt
-  if(MQTT_AVAILABILITY) {
-    // pub_sub_client.setServer(server, 1883);
-    // pub_sub_client.setCallback(mqttCallback);
-    connectMQTT(me);
-    if(me->mqtt_status) {
-        Serial.println(" mqtt connected");
-    }
-  }
-  */
    return me;
 }
 
@@ -148,7 +124,7 @@ void reconnectWiFi(connectionManager  * con){
 bool connectWiFi(connectionManager * con) {
   bool res;
   digitalWrite(HEARTBEAT_LED,LOW);  
-  wm.setConnectTimeout(5000);
+  wm.setConnectTimeout(120);
   res = wm.autoConnect("Tank"); // auto generated AP name from chipid
   
     if(res) {
@@ -165,7 +141,6 @@ void resetWifi(connectionManager * con) {
     con->Wifi_status = false;
     wm.resetSettings(); // reset settings - wipe stored credentials for testing, these are stored by the esp library
     digitalWrite(WIFI_LED,HIGH);
-    reconnectWiFi(con);
 }
 
 void initRadio(connectionManager * con){
