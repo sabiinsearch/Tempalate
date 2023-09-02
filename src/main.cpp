@@ -28,12 +28,6 @@ void setup() {
   while (!Serial);
   delay(1000);
 	
-  // Send some device info
-	// Serial.println("Build: ");
-  
-  // Serial.print("Board ID: WT-");
-  // Serial.println(getBoard_ID());
-
   LED_allOff();
   //digitalWrite(touch1, 0);
  
