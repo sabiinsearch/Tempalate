@@ -126,12 +126,15 @@ void initRGB(){
  void broadcast_appMgr(appManager * appMgr) {
   
   String payload;
-  StaticJsonBuffer<200> dataJsonBuffer;
-  JsonObject& root = dataJsonBuffer.createObject();
-  JsonObject& data = root.createNestedObject("d");
+  char json_string[256];
+  StaticJsonDocument<256> dataJsonDocument;
+
+  JsonObject root = dataJsonDocument.createNestedObject("Root");
+  JsonObject data = root.createNestedObject("d");
 
   //char* boardID = getBoard_ID();
   
+  //root["type"] = appMgr->conManager->config->boardType;
   root["type"] = BOARD_TYPE;
   root["uniqueId"] = getBoard_ID();
   data["switch"] = appMgr->switch_val;
@@ -140,14 +143,8 @@ void initRGB(){
   appMgr->current_accomulated = 0;
   data["timestamp"] = millis();
 
-  // Convert JSON object into a string
-  root.printTo(payload);
-  Serial.print(payload);
-  Serial.println("\n"); 
+  serializeJson(root, payload);
   publishData(payload,appMgr->conManager);
-  
-  dataJsonBuffer.clear();
-  vTaskDelay(10);
  }
 
 void setSwitchOn(appManager* appMgr) {
