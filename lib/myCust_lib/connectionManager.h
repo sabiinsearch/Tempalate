@@ -4,16 +4,46 @@
 #include "Arduino.h"
 #include <WiFiManager.h>
 
+struct configuration_t{
+
+     int     tankCapacity;
+     int     calibrationFactor;
+
+// Connectivity configrations
+     bool   radioAvailability;
+     bool   wifiAvailabililty;
+     bool   mqttAvailability;
+
+// Energy Monitoring configrations
+
+    int         publishON;
+    int         publishOFF;
+    uint8_t     voltageIn;
+    uint8_t     vcc;
+    uint8_t     senstivity;
+    uint8_t     powerFactor;
+
+    // MQTT configrations
+    const char*       org;
+    String            boardType;
+    const char*       token;
+    const char*       server;
+    const char*       pub_topoic;
+    const char*       sub_topoic;
+    String            mqtt_user;
+    String              mqtt_pwd;
+};
+
+
 /*Connection Manager's attributes*/
-
-
 typedef struct {
 
   WiFiManager wifi_manager;
   bool radio_status;  
   bool ble_status;
   bool Wifi_status;
-  bool mqtt_status;  
+  bool mqtt_status; 
+  configuration_t* config; 
 
 } connectionManager;
 

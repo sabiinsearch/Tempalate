@@ -212,8 +212,12 @@ void mqttCallback(char* topic, byte* payload, unsigned int length) {
   Serial.print(topic);
   Serial.print("] ");
 
-  StaticJsonBuffer<200> mqttDataBuffer;
-  JsonObject& jsonData = mqttDataBuffer.parseObject(payload);
+
+   StaticJsonDocument<200> jsonData;
+   DeserializationError error = deserializeJson(jsonData, payload);
+
+  // StaticJsonBuffer<200> mqttDataBuffer;
+  // JsonObject& jsonData = mqttDataBuffer.parseObject(payload);
   Serial.print(" >>> type: ");
   Serial.print(jsonData["type"].as<String>());
   Serial.print(", uniqueId: ");
@@ -242,7 +246,7 @@ void mqttCallback(char* topic, byte* payload, unsigned int length) {
         Serial.println("Device index not matched .... ");
       }
    }
-   mqttDataBuffer.clear();
+   jsonData.clear();
 }
 
 /**
