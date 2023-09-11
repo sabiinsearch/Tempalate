@@ -30,8 +30,8 @@ struct configuration_t{
     const char*       server;
     const char*       pub_topoic;
     const char*       sub_topoic;
-    const char*       mqtt_user;
-    const char*       mqtt_pwd;
+    String            mqtt_user;
+    String              mqtt_pwd;
 };
 
 
