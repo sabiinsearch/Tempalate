@@ -25,13 +25,13 @@ struct configuration_t{
 
     // MQTT configrations
     const char*       org;
-    String            boardType;
+    const char*       boardType;
     const char*       token;
     const char*       server;
     const char*       pub_topoic;
     const char*       sub_topoic;
-    String            mqtt_user;
-    String              mqtt_pwd;
+    const char*       mqtt_user;
+    const char*       mqtt_pwd;
 };
 
 
@@ -43,7 +43,7 @@ typedef struct {
   bool ble_status;
   bool Wifi_status;
   bool mqtt_status; 
-  configuration_t* config; 
+  struct configuration_t config; 
 
 } connectionManager;
 
@@ -52,6 +52,7 @@ typedef struct {
    connectionManager * const  connectionManager_ctor(connectionManager * const me);     // Constructor
 
    void print_communication(); 
+   void checkConnections_and_reconnect(void *);
    void initWiFi();
    void mqtt_loop();
    bool connectMQTT(connectionManager*);
@@ -65,5 +66,8 @@ typedef struct {
    void publishOnRadio(String,connectionManager*);
    void publishOnMqtt(String, connectionManager*);
    char* string2char(String);
+   void initConfig(connectionManager*);
+
+   bool getWiFi_Availability(connectionManager*);
 
 #endif

@@ -5,8 +5,8 @@
 #include "Arduino.h"
 
 // Tank Specific
-     #define tankCapacity_actual 5                 // for Demo
-     #define calibration_factor 6550         // This is not to be changed
+     #define TANK_CAPACITY 5                 // for Demo
+     #define CALIBRATION_FACTOR 6550         // This is not to be changed
    
 // Set flags for Communication
      #define RADIO_AVAILABILITY  false
