@@ -5,19 +5,19 @@
 #include "Arduino.h"
 
 // Tank Specific
-     #define tankCapacity_actual 5                 // for Demo
-     #define calibration_factor 6550         // This is not to be changed
+     #define TANK_CAPACITY 5                 // for Demo
+     #define CALIBRATION_FACTOR  6550         // This is not to be changed
    
 // Set flags for Communication
-     #define RADIO_AVAILABILITY  false
-     #define BLE_AVAILIBILITY    false
-     #define WIFI_AVAILABILITY   true
-     #define MQTT_AVAILABILITY   true
+     #define RADIO_AVAILABILITY  0//false
+     #define BLE_AVAILIBILITY    0//false
+     #define WIFI_AVAILABILITY   1//true
+     #define MQTT_AVAILABILITY   1//true
 
 
 // Energy Monitoring configrations
-    #define PUBLISH_INTERVAL_ON      5000L    // time in Minutes * sec in a min * milliseconds in sec
-    #define PUBLISH_INTERVAL_OFF     5000L    // time in Minutes * sec in a min * milliseconds in sec
+    #define PUBLISH_INTERVAL_ON      2000//5000L    // time in Minutes * sec in a min * milliseconds in sec
+    #define PUBLISH_INTERVAL_OFF     5000//5000L    // time in Minutes * sec in a min * milliseconds in sec
     #define VOLTAGE_IN               240       // Input Voltage
     #define VCC                      2.9
     #define SENSTIVITY               66       // 185mV/A for 5A, 100 mV/A for 20A and 66mV/A for 30A Module

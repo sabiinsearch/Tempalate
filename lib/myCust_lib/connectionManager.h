@@ -3,36 +3,37 @@
 
 #include "Arduino.h"
 #include <WiFiManager.h>
+#include "app_config.h"
 
-struct configuration_t{
+// struct configuration_t{
 
-     int     tankCapacity;
-     int     calibrationFactor;
+//      int     tankCapacity;
+//      int     calibrationFactor;
 
-// Connectivity configrations
-     bool   radioAvailability;
-     bool   wifiAvailabililty;
-     bool   mqttAvailability;
+// // Connectivity configrations
+//      bool   radioAvailability;
+//      bool   wifiAvailabililty;
+//      bool   mqttAvailability;
 
-// Energy Monitoring configrations
+// // Energy Monitoring configrations
 
-    int         publishON;
-    int         publishOFF;
-    uint8_t     voltageIn;
-    uint8_t     vcc;
-    uint8_t     senstivity;
-    uint8_t     powerFactor;
+//     int         publishON;
+//     int         publishOFF;
+//     uint8_t     voltageIn;
+//     uint8_t     vcc;
+//     uint8_t     senstivity;
+//     uint8_t     powerFactor;
 
-    // MQTT configrations
-    const char*       org;
-    String            boardType;
-    const char*       token;
-    const char*       server;
-    const char*       pub_topoic;
-    const char*       sub_topoic;
-    String            mqtt_user;
-    String              mqtt_pwd;
-};
+//     // MQTT configrations
+//     String       org;
+//     String       boardType;
+//     String       token;
+//     String       server;
+//     String       pub_topoic;
+//     String       sub_topoic;
+//     String       mqtt_user;
+//     String       mqtt_pwd;
+// };
 
 
 /*Connection Manager's attributes*/
@@ -43,7 +44,7 @@ typedef struct {
   bool ble_status;
   bool Wifi_status;
   bool mqtt_status; 
-  configuration_t* config; 
+//  struct configuration_t config; 
 
 } connectionManager;
 
@@ -52,6 +53,7 @@ typedef struct {
    connectionManager * const  connectionManager_ctor(connectionManager * const me);     // Constructor
 
    void print_communication(); 
+   void checkConnections_and_reconnect(void *);
    void initWiFi();
    void mqtt_loop();
    bool connectMQTT(connectionManager*);
@@ -65,5 +67,9 @@ typedef struct {
    void publishOnRadio(String,connectionManager*);
    void publishOnMqtt(String, connectionManager*);
    char* string2char(String);
+   void initConfig(connectionManager*);
+   void print_default_config();
+   bool getWiFi_Availability(connectionManager*);
+
 
 #endif

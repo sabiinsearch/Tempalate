@@ -5,7 +5,7 @@
 
 
 // Custom Libraries
-#include "app_config.h"
+//#include "app_config.h"
 #include "appManager.h"
 #include "connectionManager.h"
 #include "EnergyMonitoring.h"
@@ -18,14 +18,15 @@
 #include "HX711.h"
 #include "soc/rtc.h"
 #include "esp32-hal-cpu.h"
+
+
 connectionManager conManagerr;
-Preferences preferences;
+
+Preferences pref;
 /* constructor implementation */
 
 void appManager_ctor(appManager * const me) {
 
-  // Initiate Preferences for saving 
-  preferences.begin("app_config",false);
   
   initBoard();
   Serial.println("Board Initialized..");
@@ -56,19 +57,19 @@ void appManager_ctor(appManager * const me) {
 void getUpdateFrmCloud(appManager* appMgr) {
 
   // Initiate preferences   
-     preferences.begin("app_conf",false);
+     pref.begin("app_conf",false);
 
   // get switch value from cloud
-      appMgr->switch_val = preferences.getInt("switch_value");
+      appMgr->switch_val = pref.getInt("switch_value");
       Serial.print("Preferences Switch Value: ");
       Serial.println(appMgr->switch_val);
 
   // get threshold from cloud
-      appMgr->threshold = preferences.getFloat("threshold");
+      appMgr->threshold = pref.getFloat("threshold");
       Serial.print("Preferences Threshold: ");
       Serial.println(appMgr->threshold);
 
-      preferences.end();
+      pref.end();
 }
 
 
@@ -149,24 +150,24 @@ void initRGB(){
 
 void setSwitchOn(appManager* appMgr) {
       // Initiate Preferences to save state
-      preferences.begin("app_conf",false);
+      pref.begin("app_conf",false);
 
       digitalWrite(SW_pin, 1);
       appMgr->switch_val = 1;
-      preferences.putInt("switch_value", appMgr->switch_val);
-      preferences.end();
+      pref.putInt("switch_value", appMgr->switch_val);
+      pref.end();
 
 }
 
 void setSwitchOff(appManager* appMgr) {
       // Initiate Preferences to save state
-      preferences.begin("app_conf",false);
+      pref.begin("app_conf",false);
 
       digitalWrite(SW_pin, 0);
       appMgr->switch_val = 0;
 
-      preferences.putInt("switch_value", appMgr->switch_val);
-      preferences.end();
+      pref.putInt("switch_value", appMgr->switch_val);
+      pref.end();
 
 }
 // initialize the Scale
@@ -177,9 +178,10 @@ HX711 setLoadCell(appManager * appMgr) {
     
     //rtc_clk_cpu_freq_set_config(RTC_CPU_FREQ_80M);   //  RTC_CPU_FREQ_80M
     setCpuFrequencyMhz(80); 
-    Serial.print("Initialinzing scale... ");  
+
+    Serial.print("Initializing scale... ");  
     scale_local.begin(data_pin,clk_pin);
-    scale_local.set_scale(calibration_factor);
+    scale_local.set_scale(CALIBRATION_FACTOR);
     Serial.print("Scale Calibrated... ");  
 
     if(scale_local.is_ready()) {
@@ -308,7 +310,8 @@ HX711 setLoadCell(appManager * appMgr) {
 
 
 void setBoardWithLC(appManager* appMgr) {
-  preferences.begin("app_conf");
+  
+  pref.begin("app_conf");
   Serial.println("Sync Board with LC.");
 
   appMgr->scale = setLoadCell(appMgr);
@@ -324,11 +327,11 @@ void setBoardWithLC(appManager* appMgr) {
   }
 
   
-  preferences.putFloat("threshold",reading);
+  pref.putFloat("threshold",reading);
   appMgr->threshold = reading;
   Serial.print("Threshold set in Preferences and appManager as per Load Cell..");
   Serial.println(appMgr->threshold);
-  preferences.end();
+  pref.end();
 }
 
 
@@ -417,39 +420,38 @@ void checkWaterLevel_and_indicators(appManager* appMgr) {
 
  
 
- void checkConnections_and_reconnect(void * pvParameters) { 
+//  void checkConnections_and_reconnect(void * pvParameters) { 
     
-    appManager* appMgr = (appManager*)pvParameters; 
-    Serial.print("checking connection set @ Core..");
-    Serial.println(xPortGetCoreID());
-    // Serial.print("\t");
-    // Serial.print("wifi : ");
-    // Serial.println(appMgr->conManager->wifi_manager.getWLStatusString());
+//     appManager* appMgr = (appManager*)pvParameters; 
+//     Serial.print("checking connection set @ Core..");
+//     Serial.println(xPortGetCoreID());
+//     // Serial.print("\t");
+//     // Serial.print("wifi : ");
+//     // Serial.println(appMgr->conManager->wifi_manager.getWLStatusString());
 
-   if(RADIO_AVAILABILITY){
-      initRadio(appMgr->conManager);
-      Serial.print(" Ready to print ");
-   }
-      if(WIFI_AVAILABILITY) {
-        initWiFi();
-      }
+//    if(RADIO_AVAILABILITY){
+//       initRadio(appMgr->conManager);
+//       Serial.print(" Ready to print ");
+//    }
+//       if(WIFI_AVAILABILITY) {
+//         initWiFi();
+//       }
 
-    for(;;) {
-      //;
+//     for(;;) {
+//       //;
       
-      if((WIFI_AVAILABILITY==true) && (appMgr->conManager->wifi_manager.getWLStatusString()!= "WL_CONNECTED")) {
-        Serial.print("Wifi status..");
-        Serial.println(appMgr->conManager->wifi_manager.getWLStatusString());
-        digitalWrite(WIFI_LED,HIGH);
-        appMgr->conManager->Wifi_status = connectWiFi(appMgr->conManager);
-      }
-      if((MQTT_AVAILABILITY) && (appMgr->conManager->Wifi_status) && !(appMgr->conManager->mqtt_status)) {
-        digitalWrite(MQTT_LED,HIGH);
-        appMgr->conManager->mqtt_status = connectMQTT(appMgr->conManager);
-      }
-    }
- }
-
+//       if((getWiFi_Availability(appMgr->conManager)==true) && (appMgr->conManager->wifi_manager.getWLStatusString()!= "WL_CONNECTED")) {
+//         Serial.print("Wifi status..");
+//         Serial.println(appMgr->conManager->wifi_manager.getWLStatusString());
+//         digitalWrite(WIFI_LED,HIGH);
+//         appMgr->conManager->Wifi_status = connectWiFi(appMgr->conManager);
+//       }
+//       if((getWiFi_Availability(appMgr->conManager)) && (appMgr->conManager->Wifi_status) && !(appMgr->conManager->mqtt_status)) {
+//         digitalWrite(MQTT_LED,HIGH);
+//         appMgr->conManager->mqtt_status = connectMQTT(appMgr->conManager);
+//       }
+//     }
+//  }
 
 
  

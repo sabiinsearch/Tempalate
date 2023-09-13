@@ -24,6 +24,10 @@ unsigned long prev_pub_time=0;
 // setup function
 void setup() {
 
+//  nvs_flash_erase(); // erase the NVS partition and...
+
+  nvs_flash_init(); // initialize the NVS partition.  
+
   Serial.begin(9600);
   while (!Serial);
   delay(1000);
@@ -50,12 +54,12 @@ void setup() {
  * Logic that runs in Loop
  */
 void loop() { 
-//    Serial.println("In loop..");
+    //Serial.println(F("In loop.."));
   
 
           checkButtonPressed(&managr);
    
-//    Serial.println("Check detection done in loop()..");
+    //Serial.println(F("Check detection done in loop().."));
     if( (managr.switch_val==0) && ((unsigned long)(millis() - prev_pub_time) >= PUBLISH_INTERVAL_OFF)) { 
       
              broadcast_appMgr(&managr);             
@@ -68,11 +72,11 @@ void loop() {
                 prev_pub_time = millis();            
       }              
 
- //  Serial.println("Checking water level and setting indicators accordingly in loop..");
+  //Serial.println(F("Checking water level and setting indicators accordingly in loop.."));
 
    checkWaterLevel_and_indicators(&managr);
 
-  //     Serial.println("Water level checked in loop..");
+    //   Serial.println(F("Water level checked in loop.."));
 
    if(managr.conManager->mqtt_status) {
        mqtt_loop();
