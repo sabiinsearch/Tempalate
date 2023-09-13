@@ -243,52 +243,63 @@ void checkDataOnRadio(){
 
 //  mqtt methods
 void mqttCallback(char* topic, byte* payload, unsigned int length) {
-  
-  String board_type_local;
 
-  // Initiate Preferences for fetching few config parameters 
-  preferences.begin("app_config",true);
-  board_type_local = preferences.getString("BOARD_TYPE","");
-  preferences.end();
-
-  Serial.print("Message arrived in topic [");
-  Serial.print(topic);
-  Serial.print("] ");
-
-
+   
    StaticJsonDocument<200> jsonData;
    DeserializationError error = deserializeJson(jsonData, payload);
 
-  // StaticJsonBuffer<200> mqttDataBuffer;
-  // JsonObject& jsonData = mqttDataBuffer.parseObject(payload);
-  Serial.print(" >>> type: ");
-  Serial.print(jsonData["type"].as<String>());
-  Serial.print(", uniqueId: ");
-  Serial.print(jsonData["uniqueId"].as<String>());
-  Serial.print(", deviceIndex: ");
-  Serial.print(jsonData["deviceIndex"].as<int>());
-  Serial.print(", deviceValue: ");
-  Serial.println(jsonData["deviceValue"].as<int>());
+   Serial.print(F(" Received JSON: "));
+   serializeJson(jsonData, Serial);
 
-  if(jsonData["type"].as<String>() == board_type_local && jsonData["uniqueId"].as<String>() == BOARD_ID){
-    Serial.println("<<<< SWITCH ACTION ON BOARD MATCHES >>>>");
-    int deviceIndex = jsonData["deviceIndex"].as<int>();
-    int deviceValue = jsonData["deviceValue"].as<int>();
-
-    int deviceAction = 1;
-    if(deviceValue == 1){
-      deviceAction = 0;
+    if(BOARD_ID == ""){
+      BOARD_ID = "HB_" +String(getBoard_ID());  
     }
 
-    switch (deviceIndex) {
-      case 1:
-          digitalWrite(SW_pin, deviceAction);          
-          // switch_value = deviceAction;
-        break;
-      default:
-        Serial.println("Device index not matched .... ");
-      }
-   }
+    String uniqueID = String(getBoard_ID());
+
+    if((jsonData["uniqueID"].as<String>() == uniqueID)) {
+        String action = jsonData["action"].as<String>();
+        Serial.print("Message arrived to ");
+     
+        if(strcmp(action.c_str(),"UPDATE")==0) {
+           Serial.println(action); 
+
+           JsonObject configuration = jsonData["config"].as<JsonObject>();
+           serializeJson(configuration, Serial);           
+         
+        }
+    }
+               
+  // StaticJsonBuffer<200> mqttDataBuffer;
+  // JsonObject& jsonData = mqttDataBuffer.parseObject(payload);
+  // Serial.print(" >>> type: ");
+  // Serial.print(jsonData["type"].as<String>());
+  // Serial.print(", uniqueId: ");
+  // Serial.print(jsonData["uniqueId"].as<String>());
+  // Serial.print(", deviceIndex: ");
+  // Serial.print(jsonData["deviceIndex"].as<int>());
+  // Serial.print(", deviceValue: ");
+  // Serial.println(jsonData["deviceValue"].as<int>());
+
+  // if(jsonData["type"].as<String>() == board_type_local && jsonData["uniqueId"].as<String>() == BOARD_ID){
+  //   Serial.println("<<<< SWITCH ACTION ON BOARD MATCHES >>>>");
+  //   int deviceIndex = jsonData["deviceIndex"].as<int>();
+  //   int deviceValue = jsonData["deviceValue"].as<int>();
+
+  //   int deviceAction = 1;
+  //   if(deviceValue == 1){
+  //     deviceAction = 0;
+  //   }
+
+  //   switch (deviceIndex) {
+  //     case 1:
+  //         digitalWrite(SW_pin, deviceAction);          
+  //         // switch_value = deviceAction;
+  //       break;
+  //     default:
+  //       Serial.println("Device index not matched .... ");
+  //     }
+  //  }
    jsonData.clear();
 }
 
