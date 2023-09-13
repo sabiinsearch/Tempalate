@@ -24,6 +24,10 @@ unsigned long prev_pub_time=0;
 // setup function
 void setup() {
 
+//  nvs_flash_erase(); // erase the NVS partition and...
+
+  nvs_flash_init(); // initialize the NVS partition.  
+
   Serial.begin(9600);
   while (!Serial);
   delay(1000);

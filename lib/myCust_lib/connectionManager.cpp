@@ -1,6 +1,7 @@
 #include <ArduinoJson.h>
 #include "connectionManager.h"
 #include "Preferences.h"
+#include "appManager.h"
 
 // for WiFi, LoRa and mqtt
 
@@ -36,13 +37,10 @@ WiFiClient wifiClient;
 // const char* mqttServer = SERVER;
 // PubSubClient pub_sub_client(mqttServer, 1883, NULL, wifiClient);
 PubSubClient pub_sub_client(wifiClient);
+
 WiFiManager wm; // WiFi Manager 
 
-String sub_topic = SUB_TOPIC;
-String pub_topic = PUB_TOPIC;
-char server[] = SERVER;
-char mqttUser[] = MQTT_USER;
-char mqttPassword[] = MQTT_PASSWORD;
+
 
 
 /* constructor implementation */
@@ -66,15 +64,40 @@ void initWiFi() {
   //wm.setWiFiAutoReconnect(true);
 }
 
-bool getWiFi_Availability(connectionManager* conMgr) {
+void print_default_config();  // Implementation below
 
-            return conMgr->config.wifiAvailabililty;
+void showPreferences();   // For Troubleshooting..
+
+bool getWiFi_Availability(connectionManager* conMgr) {
+     
+     bool availability;   
+  // Initiate Preferences for fetching few configurations 
+  preferences.begin("app_config",false);
+
+     availability = preferences.getBool("WIFI_AVAILIABILITY");
+     
+            return availability;
 }
 
 /**
  * Connect to MQTT Server
  */
  bool connectMQTT(connectionManager * con) {
+
+    // Initiate Preferences for fetching few configurations 
+  preferences.begin("app_config",true);
+
+  String org_local = preferences.getString("ORG","");
+  String board_type_local = preferences.getString("BOARD_TYPE","");
+  
+  String sub_topic_local = preferences.getString("SUB_TOPIC","");
+  String pub_topic_local = preferences.getString("PUB_TOPIC","");
+  String server_local = preferences.getString("SERVER","");
+  String mqttUser_local = preferences.getString("MQTT_USER","");
+  String mqttPassword_local = preferences.getString("MQTT_PWD","");
+
+  preferences.end();
+
   
   if(con->Wifi_status){
     if(BOARD_ID == ""){
@@ -82,22 +105,22 @@ bool getWiFi_Availability(connectionManager* conMgr) {
     }
     // BOARD_ID = "HB_2552610648";
     
-    String clientId = "d:" ORG ":" BOARD_TYPE ":" +BOARD_ID;
+    String clientId = "d:"+org_local+":"+board_type_local+":" +BOARD_ID;
     Serial.print("Connecting MQTT client: ");
     Serial.println(clientId);
     // mqttConnected = client.connect((char*) clientId.c_str(), token, "");
   //  pub_sub_client.username_pw_set(mqttUser, mqttPassword);
-    pub_sub_client.setServer(server, 1883);
+    pub_sub_client.setServer(server_local.c_str(), 1883);
     pub_sub_client.setCallback(mqttCallback);
-    con->mqtt_status = pub_sub_client.connect((char*) clientId.c_str(), con->config.mqtt_user, con->config.mqtt_pwd);
-    Serial.println("MQTT Status: >>>> ");
-    Serial.print(pub_sub_client.state());
+    con->mqtt_status = pub_sub_client.connect((char*) clientId.c_str(), mqttUser_local.c_str(), mqttPassword_local.c_str());
+    // Serial.println("MQTT Status: >>>> ");
+    // Serial.print(pub_sub_client.state());
           
     if(con->mqtt_status){
       digitalWrite(MQTT_LED,LOW);   
-      pub_sub_client.subscribe(sub_topic.c_str());
-      Serial.print("Subscribed to : >>  ");
-      Serial.println(sub_topic);
+      pub_sub_client.subscribe(sub_topic_local.c_str());
+      Serial.print("Subscribed to : >>>>  ");
+      Serial.println(sub_topic_local);
     }else {
       digitalWrite(MQTT_LED,HIGH);
       Serial.print("Error connecting to MQTT, state: ");
@@ -220,6 +243,14 @@ void checkDataOnRadio(){
 
 //  mqtt methods
 void mqttCallback(char* topic, byte* payload, unsigned int length) {
+  
+  String board_type_local;
+
+  // Initiate Preferences for fetching few config parameters 
+  preferences.begin("app_config",true);
+  board_type_local = preferences.getString("BOARD_TYPE","");
+  preferences.end();
+
   Serial.print("Message arrived in topic [");
   Serial.print(topic);
   Serial.print("] ");
@@ -239,7 +270,7 @@ void mqttCallback(char* topic, byte* payload, unsigned int length) {
   Serial.print(", deviceValue: ");
   Serial.println(jsonData["deviceValue"].as<int>());
 
-  if(jsonData["type"].as<String>() == BOARD_TYPE && jsonData["uniqueId"].as<String>() == BOARD_ID){
+  if(jsonData["type"].as<String>() == board_type_local && jsonData["uniqueId"].as<String>() == BOARD_ID){
     Serial.println("<<<< SWITCH ACTION ON BOARD MATCHES >>>>");
     int deviceIndex = jsonData["deviceIndex"].as<int>();
     int deviceValue = jsonData["deviceValue"].as<int>();
@@ -283,18 +314,30 @@ void createName() {
 
 
 void publishOnMqtt(String data, connectionManager * con) {
+//  Serial.println(F("For publish on mqtt"));   // log
+  String pub_topic_local;
+  bool mqtt_availabilty_local;
+
+  // Initiate Preferences for fetching few config parameters 
+  preferences.begin("app_config",true);
+  
+  pub_topic_local = preferences.getString("PUB_TOPIC","");
+  mqtt_availabilty_local = preferences.getBool("MQTT_AVAIL","");
+
+  preferences.end();
+
 
    bool published = false;
    
-     if(pub_sub_client.publish(pub_topic.c_str(), (char*) data.c_str())){
+     if(pub_sub_client.publish(pub_topic_local.c_str(), (char*) data.c_str())){
        Serial.print("Published payload to Topic[");
-       Serial.print(pub_topic);
+       Serial.print(pub_topic_local);
        Serial.print("]: ");
        Serial.println(data);
        published = true;
      }else{
        Serial.print("Publish failed: \t");
-          if (!!!pub_sub_client.connected() && MQTT_AVAILABILITY) {
+          if (!!!pub_sub_client.connected() && mqtt_availabilty_local) {
             Serial.print(" Wifi : ");
             Serial.print(con->Wifi_status);
             Serial.print("\t");
@@ -308,14 +351,21 @@ void publishOnMqtt(String data, connectionManager * con) {
   
 }
 
-void publishData(String data, connectionManager * con) {
- 
-    if(con->radio_status) {
+void publishData(String data, connectionManager* con) {
+ //  Serial.print(F(" con->mqtt_status "));   // log
+//      Serial.println(con->mqtt_status);
+
+   preferences.begin("app_config",false);
+
+
+    if(preferences.getBool("RADIO_AVAIL",false)) {
+//      Serial.println(F("For publish on radio"));   // log
       publishOnRadio(data,con);
     }
-    Serial.print(F("Mqtt_status.."));
-    Serial.println(con->mqtt_status);
+    // Serial.print(F("Mqtt_status.."));
+    // Serial.println(con->mqtt_status);
     if (con->mqtt_status) {
+//      Serial.println(F("Publish Data: For publish on mqtt"));   // log
        publishOnMqtt(data, con);
     } 
        
@@ -323,190 +373,272 @@ void publishData(String data, connectionManager * con) {
      
 void initConfig(connectionManager* conMgr) {
 
-    String       org_local;
-    String       boardType_local;
-    String       token_local;
-    String       server_local;
-    String       pub_topoic_local;
-    String       sub_topoic_local;
-    String       mqtt_user_local;
-    String       mqtt_pwd_local;
-
 
   // Initiate Preferences for saving 
   preferences.begin("app_config",false);
 
+    //  int tank_cap = TANK_CAPACITY;
+    //  int calibrationFactor = CALIBRATION_FACTOR;
 
-     conMgr->config.tankCapacity = preferences.getInt("TANK_CAPACITY"); 
-
-         if(conMgr->config.tankCapacity<0) {
-         conMgr->config.tankCapacity = TANK_CAPACITY;
-         preferences.putInt("TANK_CAPACITY",conMgr->config.tankCapacity);
-         
+     bool radioAvailability = RADIO_AVAILABILITY;
+     bool wifiAvailibility = WIFI_AVAILABILITY;
+     bool mqttAvailibility = MQTT_AVAILABILITY;
+     
+     if((preferences.getLong("TANK_CAPACITY",0))==0) {         
+         preferences.putLong("TANK_CAPACITY",TANK_CAPACITY);         
      }
     
      
-     conMgr->config.calibrationFactor = preferences.getInt("CALIBRATION_FACTOR");
-
-     if(conMgr->config.calibrationFactor<0) {
-         conMgr->config.calibrationFactor = CALIBRATION_FACTOR;
-         preferences.putInt("CALIBRATION_FACTOR",conMgr->config.calibrationFactor);
+     if((preferences.getLong64("CAL_FACT",0))==0) {         
+         preferences.putLong64("CAL_FACT",CALIBRATION_FACTOR);
      }
 
-     conMgr->config.radioAvailability = preferences.getBool("RADIO_AVAILABILITY");
-
-     if(conMgr->config.radioAvailability<0) {
-         conMgr->config.radioAvailability = RADIO_AVAILABILITY;
-         preferences.putBool("RADIO_AVAILABILITY",conMgr->config.radioAvailability);
+     
+     if((preferences.getBool("RADIO_AVAIL",false))) {
+         preferences.putBool("RADIO_AVAIL",RADIO_AVAILABILITY);
      }
 
-     conMgr->config.wifiAvailabililty = preferences.getBool("WIFI_AVAILABILITY"); 
-
-     if(!(conMgr->config.wifiAvailabililty==false) || !(conMgr->config.wifiAvailabililty==true)) {
-         conMgr->config.wifiAvailabililty = WIFI_AVAILABILITY;
-         preferences.putBool("WIFI_AVAILABILITY",conMgr->config.wifiAvailabililty);
-     }
-     Serial.print(F("WiFi_Availability set as "));
-     Serial.println(conMgr->config.wifiAvailabililty);
-
-     conMgr->config.mqttAvailability = preferences.getBool("MQTT_AVAILABILITY"); 
-
-     if(conMgr->config.mqttAvailability<=0) {
-         conMgr->config.mqttAvailability = MQTT_AVAILABILITY;
-         preferences.putBool("MQTT_AVAILABILITY",conMgr->config.mqttAvailability);
+     if(!(preferences.getBool("WIFI_AVAIL",false))) {         
+         preferences.putBool("WIFI_AVAIL",WIFI_AVAILABILITY);
      }
 
-     Serial.print(F("Mqtt_Availability set as "));
-     Serial.println(conMgr->config.mqttAvailability);
+    //  Serial.print(F("WiFi_Availability set as "));
+    //  Serial.println(WIFI_AVAILABILITY);
 
-     conMgr->config.publishON = preferences.getInt("PUBLISH_INTERVAL_ON"); 
-
-     if(conMgr->config.publishON<0) {
-         conMgr->config.publishON = PUBLISH_INTERVAL_ON;
-         preferences.putInt("PUBLISH_INTERVAL_ON", conMgr->config.publishON);
+     if(!(preferences.getBool("MQTT_AVAIL",false))) {
+         preferences.putBool("MQTT_AVAIL",MQTT_AVAILABILITY);
      }
 
-     conMgr->config.publishOFF = preferences.getInt("PUBLISH_INTERVAL_OFF"); 
+    //  Serial.print(F("Mqtt_Availability set as "));
+    //  Serial.println(MQTT_AVAILABILITY);
 
-     if(conMgr->config.publishOFF<0) {
-         conMgr->config.publishOFF = PUBLISH_INTERVAL_OFF;
-         preferences.putBool("PUBLISH_INTERVAL_OFF",conMgr->config.publishOFF);
+     if((preferences.getLong64("PUBLISH_ON",0))==0) {         
+         preferences.putLong64("PUBLISH_ON", PUBLISH_INTERVAL_ON);
      }
 
-     conMgr->config.voltageIn = preferences.getInt("VOLTAGE_IN"); 
-
-     if(conMgr->config.voltageIn<0) {
-         conMgr->config.voltageIn = VOLTAGE_IN;
-         preferences.putInt("VOLTAGE_IN",conMgr->config.voltageIn);
+     if((preferences.getLong64("PUBLISH_OFF",0))==0) {
+         preferences.putLong64("PUBLISH_OFF",PUBLISH_INTERVAL_OFF);
      }
-     conMgr->config.vcc = preferences.getInt("VCC"); 
-
-     if(conMgr->config.vcc<0) {
-        conMgr->config.vcc = VCC;
-        preferences.putInt("VCC",conMgr->config.vcc);
-     }
-   
-     conMgr->config.senstivity = preferences.getInt("SENSTIVITY"); 
-
-     if(conMgr->config.senstivity<0) {
-        conMgr->config.senstivity = SENSTIVITY;
-        preferences.putInt("SENSTIVITY",conMgr->config.senstivity);
+     
+     if((preferences.getLong("VOLTAGE_IN",0))==0) {         
+         preferences.putLong("VOLTAGE_IN",VOLTAGE_IN);         
      }
 
-     conMgr->config.powerFactor = preferences.getInt("PF"); 
-
-     if(conMgr->config.powerFactor<0) {
-        conMgr->config.powerFactor = PF;
-        preferences.putInt("PF", conMgr->config.powerFactor);
+     if((preferences.getFloat("VCC",0))==0) {      
+        preferences.putFloat("VCC",VCC);
      }
+        
+     if((preferences.getLong64("SENSTIVITY",0))==0) {        
+        preferences.putLong64("SENSTIVITY",SENSTIVITY);
+     }
+     
+     if((preferences.getLong("PF",0))==0) {        
+        preferences.putLong("PF", PF);
+     }
+       
+     if((sizeof(preferences.getString("ORG","")) > 0)) {
+         preferences.putString("ORG", ORG);
+     }
+       
+    if((sizeof(preferences.getString("BOARD_TYPE",""))>0)) {         
+         preferences.putString("BOARD_TYPE",BOARD_TYPE);
+    }
 
-       org_local = preferences.getString("ORG"); 
-       conMgr->config.org = org_local.c_str() ;
-       if((sizeof(conMgr->config.org) == 0)) {
-         conMgr->config.org = ORG;
-         preferences.putString("ORG", conMgr->config.org);
-       }
- 
-      boardType_local = preferences.getString("BOARD_TYPE"); 
-      conMgr->config.boardType = boardType_local.c_str();
-      if((sizeof(conMgr->config.boardType)==0)) {
-         conMgr->config.boardType = BOARD_TYPE;
-         preferences.putString("BOARD_TYPE",conMgr->config.boardType);
-      }
+      
+    if((sizeof(preferences.getString("TOKEN",""))>0)) {         
+         preferences.putString("TOKEN", TOKEN);
+    }
 
-      token_local = preferences.getString("TOKEN"); 
-      conMgr->config.token = token_local.c_str();
-      if((sizeof(conMgr->config.token)==0)) {
-         conMgr->config.token = TOKEN;
-         preferences.putString("TOKEN", conMgr->config.token);
-      }
+      
+    if((sizeof(preferences.getString("SERVER",""))>0)) {         
+         preferences.putString("SERVER", SERVER);
+    }
 
-      server_local = preferences.getString("SERVER"); 
-      conMgr->config.server = server_local.c_str();
-      if((sizeof(conMgr->config.server)==0)) {
-         conMgr->config.server = SERVER;
-         preferences.putString("SERVER", conMgr->config.server);
-      }
+    if((sizeof(preferences.getString("PUB_TOPIC",""))>0)) {         
+         preferences.putString("PUB_TOPIC", PUB_TOPIC);
+    }
 
-      mqtt_user_local = preferences.getString("MQTT_USER"); 
-      conMgr->config.mqtt_user = mqtt_user_local.c_str();
-      if((sizeof(conMgr->config.mqtt_user)==0)) {
-         conMgr->config.mqtt_user = MQTT_USER;
-         preferences.putString("MQTT_USER", conMgr->config.mqtt_user);
-      }
+    if((sizeof(preferences.getString("SUB_TOPIC",""))>0)) {         
+         preferences.putString("SUB_TOPIC", SUB_TOPIC);
+    }
 
-      mqtt_pwd_local = preferences.getString("MQTT_PASSWORD"); 
-      conMgr->config.mqtt_pwd = mqtt_pwd_local.c_str();
 
-      if((sizeof(conMgr->config.mqtt_pwd)==0)) {
-         conMgr->config.mqtt_pwd= MQTT_PASSWORD;
-         preferences.putString("MQTT_PASSWORD", conMgr->config.mqtt_pwd);
-      }
+    if((sizeof(preferences.getString("MQTT_USER",""))>0)) {         
+         preferences.putString("MQTT_USER", MQTT_USER);
+    }
 
-       preferences.end();
-      Serial.println(F("Configuration set.."));
+    if((sizeof(preferences.getString("MQTT_PWD",""))>0)) {         
+         preferences.putString("MQTT_PWD", MQTT_PASSWORD);
+    }
+    
+      preferences.end();
+      Serial.println(F("Configuration set..  "));
+
+//      showPreferences();
+      
 }
+  
+  void showPreferences() {             
+
+     preferences.begin("app_config",false);
+     
+     Serial.print(F(" TANK_CAPACITY "));
+     Serial.print(preferences.getLong("TANK_CAPACITY"));
+     Serial.print(F(" \t"));
+
+     Serial.print(F(" CAL_FACT "));
+     Serial.print(preferences.getLong64("CAL_FACT"));
+     Serial.print(F(" \t"));
+
+     Serial.print(F(" RADIO_AVAILABILITY "));
+     Serial.print(preferences.getBool("RADIO_AVAIL"));
+     Serial.print(F(" \t"));
+
+     Serial.print(F(" WIFI_AVAILIABILITY "));
+     Serial.print(preferences.getBool("WIFI_AVAIL"));
+     Serial.print(F(" \t"));
+
+     Serial.print(F(" MQTT_AVAILIABILITY "));
+     Serial.print(preferences.getBool("MQTT_AVAIL"));
+     Serial.print(F(" \t"));
+
+     Serial.print(F(" PUBLISH_ON "));
+     Serial.print(preferences.getLong64("PUBLISH_ON"));
+     Serial.print(F(" \t"));
+
+     Serial.print(F(" PUBLISH_OFF "));
+     Serial.print(preferences.getLong64("PUBLISH_OFF"));
+     Serial.print(F(" \t"));
+
+     Serial.print(F(" VOLTAGE_IN "));
+     Serial.print(preferences.getLong("VOLTAGE_IN"));
+     Serial.print(F(" \t"));
+
+     Serial.print(F(" VCC "));
+     Serial.print(preferences.getFloat("VCC"));
+     Serial.print(F(" \t"));
+
+     Serial.print(F(" SENSTIVITY "));
+     Serial.print(preferences.getLong64("SENSTIVITY"));
+     Serial.print(F(" \t"));
+
+     Serial.print(F(" PF "));
+     Serial.print(preferences.getLong("PF"));
+     Serial.print(F(" \t"));
+
+     Serial.print(F(" ORG "));
+     Serial.print(preferences.getString("ORG",""));
+     Serial.print(F(" \t"));
+
+     Serial.print(F(" BOARD_TYPE "));
+     Serial.print(preferences.getString("BOARD_TYPE",""));
+     Serial.print(F(" \t"));
+
+     Serial.print(F(" TOKEN "));
+     Serial.print(preferences.getString("TOKEN",""));
+     Serial.print(F(" \t"));
+     
+     Serial.print(F(" SERVER "));
+     Serial.print(preferences.getString("SERVER",""));
+     Serial.print(F(" \t"));
+
+     Serial.print(F(" PUB_TOPIC "));
+     Serial.print(preferences.getString("PUB_TOPIC",""));
+     Serial.print(F(" \t"));
+
+     Serial.print(F(" SUB_TOPIC "));
+     Serial.print(preferences.getString("SUB_TOPIC",""));
+     Serial.print(F(" \t"));
+
+
+     Serial.print(F(" MQTT_USER "));
+     Serial.print(preferences.getString("MQTT_USER",""));
+     Serial.print(F(" \t"));
+
+     Serial.print(F(" MQTT_PWD "));
+     Serial.print(preferences.getString("MQTT_PWD",""));
+     Serial.print(F(" \t"));
+
+
+     preferences.end();
+  }
+
+  void print_default_config() {
+
+      Serial.print(F("TANK_CAPACITY "));
+      Serial.print(TANK_CAPACITY);
+      Serial.print(F(" \n"));
+
+      Serial.print(F("CALIBRATION_FACTOR "));
+      Serial.print(CALIBRATION_FACTOR);
+      Serial.print(F(" \n"));
+      
+  }
+
+
 
 void checkConnections_and_reconnect(void * pvParameters) { 
+
+
+  bool radio_ability_local;
+  bool wifi_ability_local;
+  bool mqtt_ability_local;
+
+  // Initiate Preferences for fetching few config parameters 
+  preferences.begin("app_config",false);
+  
+ 
+  radio_ability_local = preferences.getBool("RADIO_AVAIL",false);
+  wifi_ability_local = preferences.getBool("WIFI_AVAIL",false);
+  mqtt_ability_local = preferences.getBool("MQTT_AVAIL",false);
+
+  preferences.end();
+
     
-    connectionManager* conMgr = (connectionManager*)pvParameters; 
+//    connectionManager* conMgr = (connectionManager*)pvParameters; 
+appManager* appMgr = (appManager*)pvParameters; 
     Serial.print("checking connection set @ Core..");
     Serial.println(xPortGetCoreID());
     // Serial.print("\t");
     // Serial.print("wifi : ");
     // Serial.println(appMgr->conManager->wifi_manager.getWLStatusString());
 
-   if(RADIO_AVAILABILITY){
-      initRadio(conMgr);
+   if(radio_ability_local){
+      initRadio(appMgr->conManager);
       Serial.print(" Ready to print ");
    }
-      if(WIFI_AVAILABILITY) {
+      if(wifi_ability_local) {
         initWiFi();
       }
 
     for(;;) {
+
       //;
       //Serial.println(F(" checking connection..."));
-      if((conMgr->config.wifiAvailabililty==true) && ((conMgr->wifi_manager.getWLStatusString()) == "WL_DISCONNECTED")) {
+      if((wifi_ability_local) && ((appMgr->conManager->wifi_manager.getWLStatusString()) == "WL_DISCONNECTED")) {
         Serial.print("Wifi status..");
-        Serial.println(conMgr->wifi_manager.getWLStatusString());
+        Serial.println(appMgr->conManager->wifi_manager.getWLStatusString());
         digitalWrite(WIFI_LED,HIGH);
-        conMgr->Wifi_status = connectWiFi(conMgr);
+        appMgr->conManager->Wifi_status = connectWiFi(appMgr->conManager);
+        delay(1000);
       }
 
-      Serial.print(F("Connection Details.. WiFi_Availabiity: "));
-      Serial.print(conMgr->config.wifiAvailabililty);
-      Serial.print(F(" Status String: "));
-      Serial.print(conMgr->wifi_manager.getWLStatusString());
+      // Serial.print(F("Connection Details.. WiFi_Availabiity: "));
+      // Serial.print(wifi_ability_local);
+      // Serial.print(F(" Status String: "));
+      // Serial.print(appMgr->conManager->wifi_manager.getWLStatusString());
 
-      Serial.print(F(" MQTT_Availability: "));
-      Serial.print(conMgr->config.mqttAvailability);
-      Serial.print(F(" MQTT_status: "));
-      Serial.println(conMgr->mqtt_status);
+      // Serial.print(F(" MQTT_Availability: "));
+      // Serial.print(mqtt_ability_local);
+      // Serial.print(F(" MQTT_status: "));
+      // Serial.println(appMgr->conManager->mqtt_status);
 
-      if((conMgr->config.mqttAvailability) && (conMgr->Wifi_status) && !(conMgr->mqtt_status)) {
-        digitalWrite(MQTT_LED,HIGH);
-        conMgr->mqtt_status = connectMQTT(conMgr);
+
+      if((mqtt_ability_local) && (appMgr->conManager->Wifi_status) && !(appMgr->conManager->mqtt_status)) {
+        digitalWrite(MQTT_LED,HIGH);        
+        appMgr->conManager->mqtt_status = connectMQTT(appMgr->conManager);
+        Serial.print(F("conMgr->mqtt_status: "));
+        Serial.println(appMgr->conManager->mqtt_status);
       }
     }
  }

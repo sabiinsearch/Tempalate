@@ -5,7 +5,7 @@
 
 
 // Custom Libraries
-#include "app_config.h"
+//#include "app_config.h"
 #include "appManager.h"
 #include "connectionManager.h"
 #include "EnergyMonitoring.h"
@@ -21,6 +21,7 @@
 
 
 connectionManager conManagerr;
+
 Preferences pref;
 /* constructor implementation */
 
@@ -177,7 +178,8 @@ HX711 setLoadCell(appManager * appMgr) {
     
     //rtc_clk_cpu_freq_set_config(RTC_CPU_FREQ_80M);   //  RTC_CPU_FREQ_80M
     setCpuFrequencyMhz(80); 
-    Serial.print("Initialinzing scale... ");  
+
+    Serial.print("Initializing scale... ");  
     scale_local.begin(data_pin,clk_pin);
     scale_local.set_scale(CALIBRATION_FACTOR);
     Serial.print("Scale Calibrated... ");  
@@ -308,6 +310,7 @@ HX711 setLoadCell(appManager * appMgr) {
 
 
 void setBoardWithLC(appManager* appMgr) {
+  
   pref.begin("app_conf");
   Serial.println("Sync Board with LC.");
 
@@ -449,7 +452,6 @@ void checkWaterLevel_and_indicators(appManager* appMgr) {
 //       }
 //     }
 //  }
-
 
 
  
