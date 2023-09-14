@@ -312,8 +312,12 @@ void mqttCallback(char* topic, byte* payload, unsigned int length) {
 
         int i=0;   // for iteration of keys
 
-        String action = jsonData["action"].as<String>();
+        String action = jsonData["action"].as<String>();        
 //        Serial.print("Message arrived to ");
+
+        if(strcmp(action.c_str(),"SHOW_CONFIG")==0) {
+              showPreferences();    // print all config
+        }
      
         if(strcmp(action.c_str(),"UPDATE")==0) {
 //           Serial.println(action);                 
@@ -468,7 +472,7 @@ void publishOnMqtt(String data, connectionManager * con) {
 
    bool published = false;
    
-     if(pub_sub_client.publish(pub_topic, (char*) data.c_str())){
+     if(pub_sub_client.publish(pub_topic.c_str(), (char*) data.c_str())){
        Serial.print("Published payload to Topic[");
        Serial.print(pub_topic);
        Serial.print("]: ");
@@ -662,7 +666,7 @@ void initConfig(connectionManager* conMgr) {
      Serial.print(F(" \t"));
 
      Serial.print(F(" VCC "));
-     Serial.print(preferences.getFloat("VCC"));
+     printf("%.2f",preferences.getFloat("VCC"));
      Serial.print(F(" \t"));
 
      Serial.print(F(" SENSTIVITY "));
