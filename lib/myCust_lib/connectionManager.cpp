@@ -84,6 +84,8 @@ bool getWiFi_Availability(connectionManager* conMgr) {
  */
  bool connectMQTT(connectionManager * con) {
 
+  
+
     // Initiate Preferences for fetching few configurations 
   preferences.begin("app_config",true);
 
@@ -274,6 +276,17 @@ void saveConfig_bool(const char* key, bool value) {
 
 }
 
+void saveConfig_float(const char* key, float value) {
+
+   preferences.begin("app_config", false);
+
+   preferences.remove(key);
+   preferences.putFloat(key, value);
+//   Serial.println(F(" value saved.."));
+   preferences.end();
+
+}
+
 //  mqtt methods
 void mqttCallback(char* topic, byte* payload, unsigned int length) {
 
@@ -313,7 +326,6 @@ void mqttCallback(char* topic, byte* payload, unsigned int length) {
                      (strcmp(keys[i],"PUBLISH_ON")==0) || 
                      (strcmp(keys[i],"PUBLISH_OFF")==0) ||
                      (strcmp(keys[i],"VOLTAGE_IN")==0) ||
-                     (strcmp(keys[i],"VCC")==0) ||
                      (strcmp(keys[i],"SENSTIVITY")==0) ||
                      (strcmp(keys[i],"PF")==0)) {
 
@@ -324,6 +336,16 @@ void mqttCallback(char* topic, byte* payload, unsigned int length) {
 
                     saveConfig_long(keys[i], kv.value().as<long>());
                   }
+
+                  if(strcmp(keys[i],"VCC")==0) {
+                    
+                    Serial.print(F(" Updating "));
+                    Serial.print(keys[i]);
+                    Serial.print(F(" : "));
+                    Serial.println(kv.value().as<float>());
+                    saveConfig_float(keys[i], long(kv.value().as<float>()));
+                  }
+
 
                   if((strcmp(keys[i],"RADIO_AVAIL")==0) ||
                      (strcmp(keys[i],"BLE_AVAIL")==0) || 
@@ -346,11 +368,11 @@ void mqttCallback(char* topic, byte* payload, unsigned int length) {
                      (strcmp(keys[i],"MQTT_USER")==0) ||                      
                      (strcmp(keys[i],"MQTT_PWD")==0)) {
                     
-                    Serial.print(F(" Updating "));
+                    Serial.print(F(" Can not Update.. "));
                     Serial.print(keys[i]);
                     Serial.print(F(" : "));
                     Serial.println(kv.value().as<String>());
-                    saveConfig_bool(keys[i], kv.value().as<String>());
+//                    saveConfig_str(keys[i], kv.value().as<const char*>());
                   }
           
                   // keys[i] = kv.key().c_str();
@@ -553,40 +575,40 @@ void initConfig(connectionManager* conMgr) {
         preferences.putLong64("PF", PF);
      }
        
-     if((sizeof(preferences.getString("ORG","")) > 0)) {
-         preferences.putString("ORG", ORG);
-     }
+    //  if((sizeof(preferences.getString("ORG","")) > 0)) {
+    //      preferences.putString("ORG", ORG);
+    //  }
        
-    if((sizeof(preferences.getString("BOARD_TYPE",""))>0)) {         
-         preferences.putString("BOARD_TYPE",BOARD_TYPE);
-    }
+    // if((sizeof(preferences.getString("BOARD_TYPE",""))>0)) {         
+    //      preferences.putString("BOARD_TYPE",BOARD_TYPE);
+    // }
 
       
-    if((sizeof(preferences.getString("TOKEN",""))>0)) {         
-         preferences.putString("TOKEN", TOKEN);
-    }
+    // if((sizeof(preferences.getString("TOKEN",""))>0)) {         
+    //      preferences.putString("TOKEN", TOKEN);
+    // }
 
       
-    if((sizeof(preferences.getString("SERVER",""))>0)) {         
-         preferences.putString("SERVER", SERVER);
-    }
+    // if((sizeof(preferences.getString("SERVER",""))>0)) {         
+    //      preferences.putString("SERVER", SERVER);
+    // }
 
-    if((sizeof(preferences.getString("PUB_TOPIC",""))>0)) {         
-         preferences.putString("PUB_TOPIC", PUB_TOPIC);
-    }
+    // if((sizeof(preferences.getString("PUB_TOPIC",""))>0)) {         
+    //      preferences.putString("PUB_TOPIC", PUB_TOPIC);
+    // }
 
-    if((sizeof(preferences.getString("SUB_TOPIC",""))>0)) {         
-         preferences.putString("SUB_TOPIC", SUB_TOPIC);
-    }
+    // if((sizeof(preferences.getString("SUB_TOPIC",""))>0)) {         
+    //      preferences.putString("SUB_TOPIC", SUB_TOPIC);
+    // }
 
 
-    if((sizeof(preferences.getString("MQTT_USER",""))>0)) {         
-         preferences.putString("MQTT_USER", MQTT_USER);
-    }
+    // if((sizeof(preferences.getString("MQTT_USER",""))>0)) {         
+    //      preferences.putString("MQTT_USER", MQTT_USER);
+    // }
 
-    if((sizeof(preferences.getString("MQTT_PWD",""))>0)) {         
-         preferences.putString("MQTT_PWD", MQTT_PASSWORD);
-    }
+    // if((sizeof(preferences.getString("MQTT_PWD",""))>0)) {         
+    //      preferences.putString("MQTT_PWD", MQTT_PASSWORD);
+    // }
     
       preferences.end();
       Serial.println(F("Configuration set..  "));
