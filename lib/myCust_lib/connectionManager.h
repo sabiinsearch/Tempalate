@@ -48,6 +48,7 @@ typedef struct {
 
 } connectionManager;
 
+
 /*Connection Manager's operations*/
  
    connectionManager * const  connectionManager_ctor(connectionManager * const me);     // Constructor
