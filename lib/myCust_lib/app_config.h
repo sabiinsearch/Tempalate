@@ -4,6 +4,7 @@
 
 #include "Arduino.h"
 
+/******************************* These Values can be updated from mqtt      **************************************/
 // Tank Specific
      #define TANK_CAPACITY 5                 // for Demo
      #define CALIBRATION_FACTOR  6550         // This is not to be changed
@@ -24,7 +25,7 @@
     #define PF                       95       // Power Factor
 
 
-
+/******************************* Do Not Edit / update these values      **************************************/
 //  Mqtt Configurations
 
     // IOT PLATFORM VARIABLES

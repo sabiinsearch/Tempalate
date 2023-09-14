@@ -52,6 +52,18 @@ Power Factor = Real Power/Apparent Power
 
     =>  Energy = { Input Volt * Current Measured /1000  * (1/3600*1000*4135)millis } Killo Watt Hours
 
+## MQTT commands 
+
+  1.   To subscribe 
+            mosquitto_sub -h broker.hivemq.com -p 1883 -t iot-2/evt/status/fmt/json
+
+  1.   To update configuration: 
+            mosquitto_pub -h broker.hivemq.com -t iot-2/cmd/device/fmt/json -m "{\"uniqueID\":3940033088,\"action\":\"UPDATE\",\"config\":{\"VCC\":2.7,\"ORG\":\"reqofj\",\"PUBLISH_ON\":2000}}" -q 1
+
+  2.   To print all configurations
+             mosquitto_pub -h broker.hivemq.com -t iot-2/cmd/device/fmt/json -m "{\"uniqueID\":3940033088,\"action\":\"SHOW_CONFIG\"}" -q 1
+
+
 
 
     
