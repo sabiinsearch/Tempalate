@@ -246,7 +246,7 @@ void saveConfig_str(const char* key, const char* value) {
    preferences.begin("app_config", false);
    preferences.remove(key);
    preferences.putString(key, value);
-   Serial.println(F(" value saved.."));
+//   Serial.println(F(" value saved.."));
    preferences.end();
 
 
@@ -258,7 +258,7 @@ void saveConfig_long(const char* key, long value) {
 
    preferences.remove(key);
    preferences.putLong64(key, value);
-   Serial.println(F(" value saved.."));
+//   Serial.println(F(" value saved.."));
    preferences.end();
 
 }
@@ -269,7 +269,7 @@ void saveConfig_bool(const char* key, bool value) {
 
    preferences.remove(key);
    preferences.putBool(key, value);
-   Serial.println(F(" value saved.."));
+//   Serial.println(F(" value saved.."));
    preferences.end();
 
 }
@@ -295,10 +295,10 @@ void mqttCallback(char* topic, byte* payload, unsigned int length) {
         int i=0;   // for iteration of keys
 
         String action = jsonData["action"].as<String>();
-        Serial.print("Message arrived to ");
+//        Serial.print("Message arrived to ");
      
         if(strcmp(action.c_str(),"UPDATE")==0) {
-           Serial.println(action);                 
+//           Serial.println(action);                 
            
            JsonObject configuration = jsonData["config"].as<JsonObject>();
             
@@ -354,8 +354,8 @@ void mqttCallback(char* topic, byte* payload, unsigned int length) {
                   }
           
                   // keys[i] = kv.key().c_str();
-                  Serial.print(keys[i]);
-                  Serial.println(kv.value().as<long>());
+                  // Serial.print(keys[i]);
+                  // Serial.println(kv.value().as<long>());
                   i++;
 //                  keys[i++] = (kv.key().c_str());
 //                    Serial.print(keys[i]);
