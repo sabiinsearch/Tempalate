@@ -42,9 +42,9 @@ WiFiManager wm; // WiFi Manager
 
 String sub_topic = SUB_TOPIC;
 String pub_topic = PUB_TOPIC;
-char server[] = SERVER;
-char mqttUser[] = MQTT_USER;
-char mqttPassword[] = MQTT_PASSWORD;
+char server[20] = SERVER;
+char mqttUser[20] = MQTT_USER;
+char mqttPassword[20] = MQTT_PASSWORD;
 
 
 
@@ -666,7 +666,10 @@ void initConfig(connectionManager* conMgr) {
      Serial.print(F(" \t"));
 
      Serial.print(F(" VCC "));
-     printf("%.2f",preferences.getFloat("VCC"));
+     char buffer[7];                                         // for printing float value dtostrf()
+     dtostrf((preferences.getFloat("VCC")),7,2,buffer);
+     Serial.print(buffer);
+//     Serial.print(preferences.getFloat("VCC"));
      Serial.print(F(" \t"));
 
      Serial.print(F(" SENSTIVITY "));
