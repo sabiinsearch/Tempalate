@@ -241,6 +241,39 @@ void checkDataOnRadio(){
     }
 }
 
+void saveConfig_str(const char* key, const char* value) {
+
+   preferences.begin("app_config", false);
+   preferences.remove(key);
+   preferences.putString(key, value);
+   Serial.println(F(" value saved.."));
+   preferences.end();
+
+
+}
+
+void saveConfig_long(const char* key, long value) {
+
+   preferences.begin("app_config", false);
+
+   preferences.remove(key);
+   preferences.putLong64(key, value);
+   Serial.println(F(" value saved.."));
+   preferences.end();
+
+}
+
+void saveConfig_bool(const char* key, bool value) {
+
+   preferences.begin("app_config", false);
+
+   preferences.remove(key);
+   preferences.putBool(key, value);
+   Serial.println(F(" value saved.."));
+   preferences.end();
+
+}
+
 //  mqtt methods
 void mqttCallback(char* topic, byte* payload, unsigned int length) {
 
@@ -248,8 +281,8 @@ void mqttCallback(char* topic, byte* payload, unsigned int length) {
    StaticJsonDocument<200> jsonData;
    DeserializationError error = deserializeJson(jsonData, payload);
 
-   Serial.print(F(" Received JSON: "));
-   serializeJson(jsonData, Serial);
+  // Serial.print(F(" Received JSON: "));
+  // serializeJson(jsonData, Serial);
 
     if(BOARD_ID == ""){
       BOARD_ID = "HB_" +String(getBoard_ID());  
@@ -258,17 +291,86 @@ void mqttCallback(char* topic, byte* payload, unsigned int length) {
     String uniqueID = String(getBoard_ID());
 
     if((jsonData["uniqueID"].as<String>() == uniqueID)) {
+
+        int i=0;   // for iteration of keys
+
         String action = jsonData["action"].as<String>();
         Serial.print("Message arrived to ");
      
         if(strcmp(action.c_str(),"UPDATE")==0) {
-           Serial.println(action); 
-
+           Serial.println(action);                 
+           
            JsonObject configuration = jsonData["config"].as<JsonObject>();
-           serializeJson(configuration, Serial);           
+            
+            const char* keys[configuration.size()];  
+
+                for (JsonPair kv : configuration) {
+                  
+                   keys[i] = kv.key().c_str();
+
+                  if((strcmp(keys[i],"TANK_CAPACITY")==0) ||
+                     (strcmp(keys[i],"CAL_FACT")==0) || 
+                     (strcmp(keys[i],"PUBLISH_ON")==0) || 
+                     (strcmp(keys[i],"PUBLISH_OFF")==0) ||
+                     (strcmp(keys[i],"VOLTAGE_IN")==0) ||
+                     (strcmp(keys[i],"VCC")==0) ||
+                     (strcmp(keys[i],"SENSTIVITY")==0) ||
+                     (strcmp(keys[i],"PF")==0)) {
+
+                    Serial.print(F(" Updating "));
+                    Serial.print(keys[i]);
+                    Serial.print(F(" : "));
+                    Serial.println(kv.value().as<long>());
+
+                    saveConfig_long(keys[i], kv.value().as<long>());
+                  }
+
+                  if((strcmp(keys[i],"RADIO_AVAIL")==0) ||
+                     (strcmp(keys[i],"BLE_AVAIL")==0) || 
+                     (strcmp(keys[i],"WIFI_AVAIL")==0) ||                      
+                     (strcmp(keys[i],"MQTT_AVAIL")==0)) {
+                    
+                    Serial.print(F(" Updating "));
+                    Serial.print(keys[i]);
+                    Serial.print(F(" : "));
+                    Serial.println(kv.value().as<bool>());
+                    saveConfig_bool(keys[i], long(kv.value().as<bool>()));
+                  }
+
+                  if((strcmp(keys[i],"ORG")==0) ||
+                     (strcmp(keys[i],"BOARD_TYPE")==0) || 
+                     (strcmp(keys[i],"TOKEN")==0) ||
+                     (strcmp(keys[i],"SERVER")==0) ||
+                     (strcmp(keys[i],"PUB_TOPIC")==0) ||
+                     (strcmp(keys[i],"SUB_TOPIC")==0) ||
+                     (strcmp(keys[i],"MQTT_USER")==0) ||                      
+                     (strcmp(keys[i],"MQTT_PWD")==0)) {
+                    
+                    Serial.print(F(" Updating "));
+                    Serial.print(keys[i]);
+                    Serial.print(F(" : "));
+                    Serial.println(kv.value().as<String>());
+                    saveConfig_bool(keys[i], kv.value().as<String>());
+                  }
+          
+                  // keys[i] = kv.key().c_str();
+                  Serial.print(keys[i]);
+                  Serial.println(kv.value().as<long>());
+                  i++;
+//                  keys[i++] = (kv.key().c_str());
+//                    Serial.print(keys[i]);
+               }
+
+                // for(int j=0; j<sizeof(keys); j++) {
+                //    Serial.print(keys[j]);
+                //    Serial.print(F("\t"));
+                // }
+
+              }              
+//           serializeJson(configuration, Serial);           
          
         }
-    }
+    
                
   // StaticJsonBuffer<200> mqttDataBuffer;
   // JsonObject& jsonData = mqttDataBuffer.parseObject(payload);
@@ -395,8 +497,8 @@ void initConfig(connectionManager* conMgr) {
      bool wifiAvailibility = WIFI_AVAILABILITY;
      bool mqttAvailibility = MQTT_AVAILABILITY;
      
-     if((preferences.getLong("TANK_CAPACITY",0))==0) {         
-         preferences.putLong("TANK_CAPACITY",TANK_CAPACITY);         
+     if((preferences.getLong64("TANK_CAPACITY",0))==0) {         
+         preferences.putLong64("TANK_CAPACITY",TANK_CAPACITY);         
      }
     
      
@@ -407,6 +509,10 @@ void initConfig(connectionManager* conMgr) {
      
      if((preferences.getBool("RADIO_AVAIL",false))) {
          preferences.putBool("RADIO_AVAIL",RADIO_AVAILABILITY);
+     }
+
+     if((preferences.getBool("BLE_AVAIL",false))) {
+         preferences.putBool("BLE_AVAIL",BLE_AVAILIBILITY);
      }
 
      if(!(preferences.getBool("WIFI_AVAIL",false))) {         
@@ -431,8 +537,8 @@ void initConfig(connectionManager* conMgr) {
          preferences.putLong64("PUBLISH_OFF",PUBLISH_INTERVAL_OFF);
      }
      
-     if((preferences.getLong("VOLTAGE_IN",0))==0) {         
-         preferences.putLong("VOLTAGE_IN",VOLTAGE_IN);         
+     if((preferences.getLong64("VOLTAGE_IN",0))==0) {         
+         preferences.putLong64("VOLTAGE_IN",VOLTAGE_IN);         
      }
 
      if((preferences.getFloat("VCC",0))==0) {      
@@ -443,8 +549,8 @@ void initConfig(connectionManager* conMgr) {
         preferences.putLong64("SENSTIVITY",SENSTIVITY);
      }
      
-     if((preferences.getLong("PF",0))==0) {        
-        preferences.putLong("PF", PF);
+     if((preferences.getLong64("PF",0))==0) {        
+        preferences.putLong64("PF", PF);
      }
        
      if((sizeof(preferences.getString("ORG","")) > 0)) {
@@ -503,6 +609,10 @@ void initConfig(connectionManager* conMgr) {
 
      Serial.print(F(" RADIO_AVAILABILITY "));
      Serial.print(preferences.getBool("RADIO_AVAIL"));
+     Serial.print(F(" \t"));
+
+     Serial.print(F(" BLE_AVAILABILITY "));
+     Serial.print(preferences.getBool("BLE_AVAIL"));
      Serial.print(F(" \t"));
 
      Serial.print(F(" WIFI_AVAILIABILITY "));
