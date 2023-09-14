@@ -9,8 +9,10 @@
 
 #include <Filters.h>
 #include <stdio.h>
+#include <Preferences.h>
 
 
+Preferences preff;
 
 // varialble for Energy Monitoring
 
@@ -19,7 +21,13 @@
 
 
   float getVPP() {
-    float Vcc = VCC;         // value from app_config.h 
+    
+    preff.begin("app_config",true);
+
+    float Vcc = preff.getFloat("VCC");         // value from configuration
+
+    preff.end();
+
     float result; 
     int readValue;                
     int maxValue = 0;             
@@ -44,18 +52,27 @@
 
 
 void getACS712(appManager* appMgr) {  // for AC
+   
+    preff.begin("app_config",true);
+
+    unsigned int Sensitivity = preff.getLong64("SENSTIVITY");         // value from configuration
+    float Supply_Voltage = preff.getLong64("VOLTAGE_IN"); 
+    unsigned int pF = preff.getLong64("PF");
+
+
+    preff.end();
+
+   
    // defining local variables 
-   volatile unsigned long total_energy_consumed;
-   unsigned int Sensitivity = SENSTIVITY;    //  value from app_config.h
+
+   volatile unsigned long total_energy_consumed;    
    float Vpp = 0; // peak-peak voltage 
    float Vrms = 0; // rms voltage
-   float Irms = 0; // rms current
-   float Supply_Voltage = VOLTAGE_IN;           // reading from DMM
+   float Irms = 0; // rms current             
    float power = 0;         // power in watt              
    unsigned long last_time =0;
    unsigned long current_time =0;
-   unsigned int calibration = 110;  // V2 slider calibrates this
-   unsigned int pF = PF;           // value from app_config.h           
+   unsigned int calibration = 110;  // V2 slider calibrates this            
    volatile float Wh =0 ;             // Energy in kWh
 
 
