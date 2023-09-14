@@ -40,6 +40,11 @@ PubSubClient pub_sub_client(wifiClient);
 
 WiFiManager wm; // WiFi Manager 
 
+String sub_topic = SUB_TOPIC;
+String pub_topic = PUB_TOPIC;
+char server[] = SERVER;
+char mqttUser[] = MQTT_USER;
+char mqttPassword[] = MQTT_PASSWORD;
 
 
 
@@ -86,19 +91,19 @@ bool getWiFi_Availability(connectionManager* conMgr) {
 
   
 
-    // Initiate Preferences for fetching few configurations 
-  preferences.begin("app_config",true);
+  //   // Initiate Preferences for fetching few configurations 
+  // preferences.begin("app_config",true);
 
-  String org_local = preferences.getString("ORG","");
-  String board_type_local = preferences.getString("BOARD_TYPE","");
+  // String org_local = preferences.getString("ORG","");
+  // String board_type_local = preferences.getString("BOARD_TYPE","");
   
-  String sub_topic_local = preferences.getString("SUB_TOPIC","");
-  String pub_topic_local = preferences.getString("PUB_TOPIC","");
-  String server_local = preferences.getString("SERVER","");
-  String mqttUser_local = preferences.getString("MQTT_USER","");
-  String mqttPassword_local = preferences.getString("MQTT_PWD","");
+  // String sub_topic_local = preferences.getString("SUB_TOPIC","");
+  // String pub_topic_local = preferences.getString("PUB_TOPIC","");
+  // String server_local = preferences.getString("SERVER","");
+  // String mqttUser_local = preferences.getString("MQTT_USER","");
+  // String mqttPassword_local = preferences.getString("MQTT_PWD","");
 
-  preferences.end();
+  // preferences.end();
 
   
   if(con->Wifi_status){
@@ -107,22 +112,22 @@ bool getWiFi_Availability(connectionManager* conMgr) {
     }
     // BOARD_ID = "HB_2552610648";
     
-    String clientId = "d:"+org_local+":"+board_type_local+":" +BOARD_ID;
+    String clientId = "d:" ORG ":" BOARD_TYPE ":" +BOARD_ID;
     Serial.print("Connecting MQTT client: ");
     Serial.println(clientId);
     // mqttConnected = client.connect((char*) clientId.c_str(), token, "");
   //  pub_sub_client.username_pw_set(mqttUser, mqttPassword);
-    pub_sub_client.setServer(server_local.c_str(), 1883);
+    pub_sub_client.setServer(server, 1883);
     pub_sub_client.setCallback(mqttCallback);
-    con->mqtt_status = pub_sub_client.connect((char*) clientId.c_str(), mqttUser_local.c_str(), mqttPassword_local.c_str());
+    con->mqtt_status = pub_sub_client.connect((char*) clientId.c_str(), mqttUser, mqttPassword);
     // Serial.println("MQTT Status: >>>> ");
     // Serial.print(pub_sub_client.state());
           
     if(con->mqtt_status){
       digitalWrite(MQTT_LED,LOW);   
-      pub_sub_client.subscribe(sub_topic_local.c_str());
+      pub_sub_client.subscribe(sub_topic.c_str());
       Serial.print("Subscribed to : >>>>  ");
-      Serial.println(sub_topic_local);
+      Serial.println(sub_topic);
     }else {
       digitalWrite(MQTT_LED,HIGH);
       Serial.print("Error connecting to MQTT, state: ");
@@ -450,13 +455,12 @@ void createName() {
 
 void publishOnMqtt(String data, connectionManager * con) {
 //  Serial.println(F("For publish on mqtt"));   // log
-  String pub_topic_local;
+
   bool mqtt_availabilty_local;
 
   // Initiate Preferences for fetching few config parameters 
   preferences.begin("app_config",true);
   
-  pub_topic_local = preferences.getString("PUB_TOPIC","");
   mqtt_availabilty_local = preferences.getBool("MQTT_AVAIL","");
 
   preferences.end();
@@ -464,9 +468,9 @@ void publishOnMqtt(String data, connectionManager * con) {
 
    bool published = false;
    
-     if(pub_sub_client.publish(pub_topic_local.c_str(), (char*) data.c_str())){
+     if(pub_sub_client.publish(pub_topic, (char*) data.c_str())){
        Serial.print("Published payload to Topic[");
-       Serial.print(pub_topic_local);
+       Serial.print(pub_topic);
        Serial.print("]: ");
        Serial.println(data);
        published = true;
@@ -669,38 +673,38 @@ void initConfig(connectionManager* conMgr) {
      Serial.print(preferences.getLong("PF"));
      Serial.print(F(" \t"));
 
-     Serial.print(F(" ORG "));
-     Serial.print(preferences.getString("ORG",""));
-     Serial.print(F(" \t"));
+    //  Serial.print(F(" ORG "));
+    //  Serial.print(preferences.getString("ORG",""));
+    //  Serial.print(F(" \t"));
 
-     Serial.print(F(" BOARD_TYPE "));
-     Serial.print(preferences.getString("BOARD_TYPE",""));
-     Serial.print(F(" \t"));
+    //  Serial.print(F(" BOARD_TYPE "));
+    //  Serial.print(preferences.getString("BOARD_TYPE",""));
+    //  Serial.print(F(" \t"));
 
-     Serial.print(F(" TOKEN "));
-     Serial.print(preferences.getString("TOKEN",""));
-     Serial.print(F(" \t"));
+    //  Serial.print(F(" TOKEN "));
+    //  Serial.print(preferences.getString("TOKEN",""));
+    //  Serial.print(F(" \t"));
      
-     Serial.print(F(" SERVER "));
-     Serial.print(preferences.getString("SERVER",""));
-     Serial.print(F(" \t"));
+    //  Serial.print(F(" SERVER "));
+    //  Serial.print(preferences.getString("SERVER",""));
+    //  Serial.print(F(" \t"));
 
-     Serial.print(F(" PUB_TOPIC "));
-     Serial.print(preferences.getString("PUB_TOPIC",""));
-     Serial.print(F(" \t"));
+    //  Serial.print(F(" PUB_TOPIC "));
+    //  Serial.print(preferences.getString("PUB_TOPIC",""));
+    //  Serial.print(F(" \t"));
 
-     Serial.print(F(" SUB_TOPIC "));
-     Serial.print(preferences.getString("SUB_TOPIC",""));
-     Serial.print(F(" \t"));
+    //  Serial.print(F(" SUB_TOPIC "));
+    //  Serial.print(preferences.getString("SUB_TOPIC",""));
+    //  Serial.print(F(" \t"));
 
 
-     Serial.print(F(" MQTT_USER "));
-     Serial.print(preferences.getString("MQTT_USER",""));
-     Serial.print(F(" \t"));
+    //  Serial.print(F(" MQTT_USER "));
+    //  Serial.print(preferences.getString("MQTT_USER",""));
+    //  Serial.print(F(" \t"));
 
-     Serial.print(F(" MQTT_PWD "));
-     Serial.print(preferences.getString("MQTT_PWD",""));
-     Serial.print(F(" \t"));
+    //  Serial.print(F(" MQTT_PWD "));
+    //  Serial.print(preferences.getString("MQTT_PWD",""));
+    //  Serial.print(F(" \t"));
 
 
      preferences.end();
