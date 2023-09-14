@@ -89,8 +89,6 @@ bool getWiFi_Availability(connectionManager* conMgr) {
  */
  bool connectMQTT(connectionManager * con) {
 
-  
-
   //   // Initiate Preferences for fetching few configurations 
   // preferences.begin("app_config",true);
 
@@ -120,13 +118,13 @@ bool getWiFi_Availability(connectionManager* conMgr) {
     pub_sub_client.setServer(server, 1883);
     pub_sub_client.setCallback(mqttCallback);
     con->mqtt_status = pub_sub_client.connect((char*) clientId.c_str(), mqttUser, mqttPassword);
-    // Serial.println("MQTT Status: >>>> ");
-    // Serial.print(pub_sub_client.state());
+    Serial.println("MQTT Status: >>>> ");
+    Serial.print(pub_sub_client.state());
           
     if(con->mqtt_status){
       digitalWrite(MQTT_LED,LOW);   
       pub_sub_client.subscribe(sub_topic.c_str());
-      Serial.print("Subscribed to : >>>>  ");
+      Serial.print("Subscribed to : >>  ");
       Serial.println(sub_topic);
     }else {
       digitalWrite(MQTT_LED,HIGH);
@@ -352,7 +350,7 @@ void mqttCallback(char* topic, byte* payload, unsigned int length) {
                     Serial.print(keys[i]);
                     Serial.print(F(" : "));
                     Serial.println(kv.value().as<float>());
-                    saveConfig_float(keys[i], long(kv.value().as<float>()));
+                    saveConfig_float(keys[i], kv.value().as<float>());
                   }
 
 
