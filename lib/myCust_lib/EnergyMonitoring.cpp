@@ -42,7 +42,7 @@ unsigned long lasttime=0;
     const int Sensor_Pin = ACS_pin;           // value from app_config.h
 
     uint32_t start_time = millis();
-    while((millis()-start_time) < 2000) { //read every 1 Sec 
+    while((millis()-start_time) < 1000) { //read every 1 Sec 
 
      readValue = analogRead(Sensor_Pin);    
      if (readValue > maxValue) 
@@ -149,7 +149,7 @@ void getACS712(appManager* appMgr) {  // for AC
            Irms = 0.0;
   }
   
-  power = (Irms*Supply_Voltage)/0.8;   // 1.2 is local calibration factor
+  power = (Irms*Supply_Voltage)/0.82;   // 1.2 is local calibration factor
   //power = (power/3600000)*(last_time-current_time);   
 
   Serial.print(F("VPP: "));

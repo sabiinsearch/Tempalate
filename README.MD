@@ -27,6 +27,8 @@ Watts=Joules/time    (where *watt* is rate at which electric energy is consumed 
   
 Energy is calculated using reading from sensor and then applying some calculations as per the constants and saved in appManager.
 
+**Note** : try with more than 100 watt device for good result.
+
 *** For Reference *** 
 
 
