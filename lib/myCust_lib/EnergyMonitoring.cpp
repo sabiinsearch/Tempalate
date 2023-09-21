@@ -145,7 +145,7 @@ void getACS712(appManager* appMgr) {  // for AC
   last_time = millis();
   Vrms = (Vpp/2.0) *0.707;    // root 2 is 0.707
   Irms = ((Vrms * 1000)/Sensitivity)-LOCAL_ERROR ;
-  if((Irms < 0.2) || (Irms<0)) {
+  if((Irms < 0.3) || (Irms<0)) {
            Irms = 0.0;
   }
   
