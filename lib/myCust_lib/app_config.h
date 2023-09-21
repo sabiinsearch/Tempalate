@@ -4,30 +4,36 @@
 
 #include "Arduino.h"
 
+/******************************* THESE CONFIGURATIONS CAN BE UPDATED FROM MQTT      **************************************/
 // Tank Specific
-     #define tankCapacity_actual 5                 // for Demo
-     #define calibration_factor 6550         // This is not to be changed
+     #define TANK_CAPACITY 5                 // for Demo
+     #define CALIBRATION_FACTOR  6550         // This is not to be changed
    
 // Set flags for Communication
-     #define RADIO_AVAILABILITY  false
-     #define BLE_AVAILIBILITY    false
-     #define WIFI_AVAILABILITY   true
-     #define MQTT_AVAILABILITY   true
+     #define RADIO_AVAILABILITY  0//false
+     #define BLE_AVAILIBILITY    0//false
+     #define WIFI_AVAILABILITY   1//true
+     #define MQTT_AVAILABILITY   1//true
 
 
 // Energy Monitoring configrations
-    #define PUBLISH_INTERVAL_ON      5000L    // time in Minutes * sec in a min * milliseconds in sec
-    #define PUBLISH_INTERVAL_OFF     5000L    // time in Minutes * sec in a min * milliseconds in sec
-    #define VOLTAGE_IN               240       // Input Voltage
-    #define VCC                      2.9
-    #define SENSTIVITY               66       // 185mV/A for 5A, 100 mV/A for 20A and 66mV/A for 30A Module
-    #define PF                       95       // Power Factor
+    #define PUBLISH_INTERVAL_ON      10000//5000L    // time in Minutes * sec in a min * milliseconds in sec
+    #define PUBLISH_INTERVAL_OFF     10000//5000L    // time in Minutes * sec in a min * milliseconds in sec
 
+    #define VOLTAGE_IN               240       // Input Voltage
+    #define VCC                      3.3
+    #define SENSTIVITY               45        //0.14       // 185mV/A for 5A, 100 mV/A for 20A and 66mV/A for 30A Module
+    #define PF                       95       // Power Factor
+//    #define FREQUENCY                55       // Frequency of AC Supply
+
+/******************************* THESE VALUES CAN'T BE UPDATED FROM MQTT  **************************************/
+
+
+    #define ZERO_POINT               3000       // 2943
+    #define LOCAL_ERROR              1.5
 
 
 //  Mqtt Configurations
-
-    // IOT PLATFORM VARIABLES
 
     #define ORG             "rqeofj"
     #define BOARD_TYPE      "HB_Water"

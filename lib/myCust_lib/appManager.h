@@ -11,7 +11,7 @@ typedef struct {
 
      connectionManager* conManager;
 //   energyMonitoringManager eManager;
-     float current_accomulated;
+     double totalEnergy;
      int switch_val;
      float waterLevel; 
      HX711 scale;
@@ -36,6 +36,8 @@ void setSwitchOff(appManager*);
 void checkButtonPressed(appManager*);
 void setLevel(appManager*);
 void getUpdateFrmCloud(appManager*);
+
+
 
 // functions to set LEDs as per status
 
