@@ -15,6 +15,9 @@
 #include "appManager.h"
 #include "EnergyMonitoring.h"
 
+
+
+Preferences pref_main;
                   
 
 // my Managers
@@ -57,18 +60,24 @@ void setup() {
  */
 void loop() { 
 //    Serial.println("In loop..");
-  
+   pref_main.begin("app_config", true);
+   
+   long publish_on = pref_main.getLong64("PUBLISH_ON");
+   long publish_off = pref_main.getLong64("PUBLISH_OFF");
+
+   pref_main.end();
+
 
           checkButtonPressed(&managr);
    
 //    Serial.println("Check detection done in loop()..");
-    if( (managr.switch_val==0) && ((unsigned long)(millis() - prev_pub_time) >= PUBLISH_INTERVAL_OFF)) { 
+    if( (managr.switch_val==0) && ((unsigned long)(millis() - prev_pub_time) >= publish_off)) { 
       
              broadcast_appMgr(&managr);             
              prev_pub_time = millis();            
       }
       //vTaskDelay(5); 
-     if( (managr.switch_val==1) && ((unsigned long)(millis() - prev_pub_time) >= PUBLISH_INTERVAL_ON)) { 
+     if( (managr.switch_val==1) && ((unsigned long)(millis() - prev_pub_time) >= publish_on)) { 
       
                 broadcast_appMgr(&managr); 
                 prev_pub_time = millis();            
