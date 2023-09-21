@@ -1,5 +1,29 @@
 ## Code for Water Tank Receiver End ##
    ### Energy Calculation ###
+
+#### Energy Calculatios ####
+
+Watts=Joules/time    (where *watt* is rate at which electric energy is consumed and *Joule* is unit of enegy)
+ 
+
+   So Power is the Rate at which Energy is consumed
+
+-     1 Joule in 1 sec = 1 Watt
+
+-     1 Joule in 1 millisecond = 1000 Watt = 1 kW
+
+-     1 Joule in microsecond = 1000000W = 1MW
+
+-     1 Watt-hour is equal to 3600 Joules (3.6kJ). One Kilowatt-Hour is the same as 1,000 Watt-hours and is the most common unit used in electrical energy consumption.
+
+**A Watt is the amount of energy (in Joules) that an electrical device (such as a light) is burning per second that it’s running. So a 60W bulb is burning 60 Joules of energy every second you have it turned on**
+
+**In mqtt_publish**
+
+            -   Total Energy is saved as Total current consumed and then accomulated and published...
+
+            -   Rest it is to be further multiplied by Volatage to convert it to power (watts) and further divide by 1000 for making it in Kilo Watt    hour (KWh). 
+
   
 Energy is calculated using reading from sensor and then applying some calculations as per the constants and saved in appManager.
 
@@ -51,6 +75,18 @@ Power Factor = Real Power/Apparent Power
     ** Note ** Time between 02 readings = 4135 millis
 
     =>  Energy = { Input Volt * Current Measured /1000  * (1/3600*1000*4135)millis } Killo Watt Hours
+
+## MQTT commands 
+
+  1.   To subscribe 
+            mosquitto_sub -h broker.hivemq.com -p 1883 -t iot-2/evt/status/fmt/json
+
+  1.   To update configuration: 
+            mosquitto_pub -h broker.hivemq.com -t iot-2/cmd/device/fmt/json -m "{\"uniqueID\":3940033088,\"action\":\"UPDATE\",\"config\":{\"VCC\":2.7,\"ORG\":\"reqofj\",\"PUBLISH_ON\":2000}}" -q 1
+
+  2.   To print all configurations
+             mosquitto_pub -h broker.hivemq.com -t iot-2/cmd/device/fmt/json -m "{\"uniqueID\":3940033088,\"action\":\"SHOW_CONFIG\"}" -q 1
+
 
 
 
