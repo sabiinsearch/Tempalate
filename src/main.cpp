@@ -15,28 +15,28 @@
 #include "appManager.h"
 #include "EnergyMonitoring.h"
 
-
-
-Preferences pref_main;
                   
 
 // my Managers
 appManager managr;
 unsigned long prev_pub_time=0;
+Preferences prefer;
+
+  volatile long publishTimeON;
+  volatile long publishTimeOFF;
 
 // setup function
 void setup() {
+
+ // nvs_flash_erase(); // erase the NVS partition and...
+
+  nvs_flash_init(); // initialize the NVS partition.  
+  
 
   Serial.begin(9600);
   while (!Serial);
   delay(1000);
 	
-  // Send some device info
-	// Serial.println("Build: ");
-  
-  // Serial.print("Board ID: WT-");
-  // Serial.println(getBoard_ID());
-
   LED_allOff();
   //digitalWrite(touch1, 0);
  
@@ -59,39 +59,47 @@ void setup() {
  * Logic that runs in Loop
  */
 void loop() { 
-//    Serial.println("In loop..");
-   pref_main.begin("app_config", true);
-   
-   long publish_on = pref_main.getLong64("PUBLISH_ON");
-   long publish_off = pref_main.getLong64("PUBLISH_OFF");
-
-   pref_main.end();
-
+    //Serial.println(F("In loop.."));
+  
 
           checkButtonPressed(&managr);
-   
-//    Serial.println("Check detection done in loop()..");
-    if( (managr.switch_val==0) && ((unsigned long)(millis() - prev_pub_time) >= publish_off)) { 
+     prefer.begin("app_config",true);
+     
+     publishTimeON = prefer.getLong64("PUBLISH_ON");
+     publishTimeOFF = prefer.getLong64("PUBLISH_OFF");
+
+    //  Serial.print(F(" ON: "));
+    //  Serial.print(publishTimeON);
+    //  Serial.print(F("\t"));
+
+    //  Serial.print(F(" OFF: "));
+    //  Serial.print(publishTimeOFF);
+    //  Serial.println(F("\t"));
+
+     prefer.end();
+
+    //Serial.println(F("Check detection done in loop().."));
+    if( (managr.switch_val==0) && ((unsigned long)(millis() - prev_pub_time) >= publishTimeOFF)) { 
       
              broadcast_appMgr(&managr);             
              prev_pub_time = millis();            
       }
       //vTaskDelay(5); 
-     if( (managr.switch_val==1) && ((unsigned long)(millis() - prev_pub_time) >= publish_on)) { 
+     if( (managr.switch_val==1) && ((unsigned long)(millis() - prev_pub_time) >= publishTimeON)) { 
       
                 broadcast_appMgr(&managr); 
                 prev_pub_time = millis();            
       }              
 
- //  Serial.println("Checking water level and setting indicators accordingly in loop..");
+  //Serial.println(F("Checking water level and setting indicators accordingly in loop.."));
 
    checkWaterLevel_and_indicators(&managr);
 
-  //     Serial.println("Water level checked in loop..");
+    //   Serial.println(F("Water level checked in loop.."));
 
    if(managr.conManager->mqtt_status) {
        mqtt_loop();
     }   
-  
+    delay(10);  
  //  checkConnections_and_reconnect(&managr);   
 }

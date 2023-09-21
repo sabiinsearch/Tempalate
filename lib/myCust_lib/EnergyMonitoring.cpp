@@ -28,13 +28,12 @@ unsigned long lasttime=0;
 
 // Energy Consumption
   float getVPP() {
-    
-    preff.begin("app_config",true);
+        preff.begin("app_config",true);
 
     float vcc = preff.getFloat("VCC");         // value from configuration
 
     preff.end();
-
+          
     float result; 
     int readValue;                
     int maxValue = 0;             
@@ -137,8 +136,9 @@ void getACS712(appManager* appMgr) {  // for AC
    float power = 0;         // power in watt              
    unsigned long last_time =0;
    unsigned long current_time =0;
-   unsigned int calibration = 110;  // V2 slider calibrates this            
-   volatile double Wh =0 ;             // Energy in kWh
+   unsigned int calibration = 110;  // V2 slider calibrates this
+   unsigned int pF = PF;           // value from app_config.h           
+   volatile float Wh =0 ;             // Energy in kWh
 
   current_time = millis();
   Vpp = getVPP();
