@@ -145,9 +145,12 @@ void getACS712(appManager* appMgr) {  // for AC
   last_time = millis();
   Vrms = (Vpp/2.0) *0.707;    // root 2 is 0.707
   Irms = ((Vrms * 1000)/Sensitivity)-LOCAL_ERROR ;
+  if((Irms < 1.0) || (Irms<0)) {
+           Irms = 0.0;
+  }
   
-  power = (Irms*Supply_Voltage)/1.2;   // 1.2 is local calibration factor
-  power = (power/3600000)*(last_time-current_time);   
+  power = (Irms*Supply_Voltage)/0.8;   // 1.2 is local calibration factor
+  //power = (power/3600000)*(last_time-current_time);   
 
   Serial.print(F("VPP: "));
   Serial.print(Vpp);
