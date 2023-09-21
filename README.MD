@@ -1,7 +1,7 @@
 ## Code for Water Tank Receiver End ##
    ### Energy Calculation ###
 
-#### Energy Calculatios ####
+#### Energy Calculations ####
 
 Watts=Joules/time    (where *watt* is rate at which electric energy is consumed and *Joule* is unit of enegy)
  
@@ -26,7 +26,7 @@ Watts=Joules/time    (where *watt* is rate at which electric energy is consumed 
                 Then divided by 1000 (for converting to Kilo Watts )and Multiplying with 3600 for making it in Kilo Watt hour (KWh). 
 
   
-Energy is calculated using reading from sensor and then applying some calculations as per the constants and saved in appManager.
+Energy is calculated using readings from sensor and applying some calculations as per the constants and saved in appManager.
 
 **Note** : try with more than 100 watt device for good result.
 

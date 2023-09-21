@@ -31,6 +31,7 @@ int  checkTouchDetected(appManager*);
 void checkWaterLevel_and_indicators(appManager*);
 void checkConnections_and_reconnect(void * pvParameters);
 void setBoardWithLC(appManager*);
+void setSwitch(appManager*);
 void setSwitchOn(appManager*);
 void setSwitchOff(appManager*);
 void checkButtonPressed(appManager*);

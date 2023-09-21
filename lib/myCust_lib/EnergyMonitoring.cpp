@@ -28,12 +28,13 @@ unsigned long lasttime=0;
 
 // Energy Consumption
   float getVPP() {
-        preff.begin("app_config",true);
+    
+    preff.begin("app_config",true);
 
     float vcc = preff.getFloat("VCC");         // value from configuration
 
     preff.end();
-          
+
     float result; 
     int readValue;                
     int maxValue = 0;             
@@ -136,37 +137,42 @@ void getACS712(appManager* appMgr) {  // for AC
    float power = 0;         // power in watt              
    unsigned long last_time =0;
    unsigned long current_time =0;
-   unsigned int calibration = 110;  // V2 slider calibrates this
-   unsigned int pF = PF;           // value from app_config.h           
-   volatile float Wh =0 ;             // Energy in kWh
+   unsigned int calibration = 1.1;              
+   volatile double Wh =0 ;             // Energy in kWh
 
   current_time = millis();
   Vpp = getVPP();
   last_time = millis();
-  Vrms = (Vpp/2.0) *0.707;    // root 2 is 0.707
-  Irms = ((Vrms * 1000)/Sensitivity)-LOCAL_ERROR ;
-  if((Irms < 0.3) || (Irms<0)) {
-           Irms = 0.0;
-  }
-  
-  // power = (Irms*Supply_Voltage)/0.82;   // 1.2 is local calibration factor
-  //power = (power/3600000)*(last_time-current_time);   
+  Vrms = (Vpp/calibration) *0.707;    // root 2 is 0.707   // divide by 1.8 is calibration
 
-  // Serial.print(F("VPP: "));
-  // Serial.print(Vpp);
-  // Serial.print(F("\t"));
-  // Serial.print(F("Vrms: "));
-  // Serial.print(Vrms);
-  // Serial.print(F("\t"));
-  // Serial.print(F("Irms: "));
-  // Serial.print(Irms);
-  // Serial.print(F("\n"));
+   if ((Vrms<0.1125)) {      // Vrms = 0.1125 leads to Irms  = 1 Amp
+      Vrms = 0.0;
+   }
+
+  Irms = ((Vrms * 1000)/Sensitivity)-LOCAL_ERROR ;
+
+   if ((Irms<0)) {
+      Irms = 0.0;
+   }
+
+
+  // power = (Irms*Supply_Voltage)/1.2;   // 1.2 is local calibration factor
+  // power = (power/3600000)*(last_time-current_time);   
+
+  Serial.print(F("VPP: "));
+  Serial.print(Vpp);
+  Serial.print(F("\t"));
+  Serial.print(F("Vrms: "));
+  Serial.print(Vrms);
+  Serial.print(F("\t"));
+  Serial.print(F("Irms: "));
+  Serial.print(Irms);
+  Serial.print(F("\n"));
   // Serial.print(F("Power: "));
   // Serial.print(power);
   // Serial.print(F("\n"));
  
 
-//  appMgr->totalEnergy += power;  
   appMgr->totalEnergy += Irms;  
 }
 
@@ -241,7 +247,6 @@ void getACS712(appManager* appMgr) {  // for AC
 //      }
 
 // }
-
 
 
 
