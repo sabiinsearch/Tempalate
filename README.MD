@@ -20,9 +20,10 @@ Watts=Joules/time    (where *watt* is rate at which electric energy is consumed 
 
 **In mqtt_publish**
 
-            -   Total Energy in that time is accomulated and saved then published...
+            -   Total current consumed in that time is accomulated and saved then published...
 
-            -   Rest it is to be further divide by 1000 and Multiply with 3600 for making it in Kilo Watt hour (KWh). 
+            -   Rest it is to be further Multiplied by Voltage (240 V) 
+                Then divided by 1000 (for converting to Kilo Watts )and Multiplying with 3600 for making it in Kilo Watt hour (KWh). 
 
   
 Energy is calculated using reading from sensor and then applying some calculations as per the constants and saved in appManager.
