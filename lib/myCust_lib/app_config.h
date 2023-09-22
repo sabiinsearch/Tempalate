@@ -4,7 +4,6 @@
 
 #include "Arduino.h"
 
-/******************************* These Values can be updated from mqtt      **************************************/
 // Tank Specific
      #define TANK_CAPACITY 5                 // for Demo
      #define CALIBRATION_FACTOR  6550         // This is not to be changed
@@ -17,18 +16,22 @@
 
 
 // Energy Monitoring configrations
-    #define PUBLISH_INTERVAL_ON      10000//5000L    // time in Minutes * sec in a min * milliseconds in sec
-    #define PUBLISH_INTERVAL_OFF     10000//5000L    // time in Minutes * sec in a min * milliseconds in sec
+    #define PUBLISH_INTERVAL_ON      5000L    // time in Minutes * sec in a min * milliseconds in sec
+    #define PUBLISH_INTERVAL_OFF     5000L    // time in Minutes * sec in a min * milliseconds in sec
     #define VOLTAGE_IN               240       // Input Voltage
-    #define VCC                      2.9
-    #define SENSTIVITY               66       // 185mV/A for 5A, 100 mV/A for 20A and 66mV/A for 30A Module
+    #define VCC                      4.10
+    #define SENSTIVITY               87        //0.14       // 185mV/A for 5A, 100 mV/A for 20A and 66mV/A for 30A Module
     #define PF                       95       // Power Factor
+//    #define FREQUENCY                55       // Frequency of AC Supply
 
+/******************************* THESE VALUES CAN'T BE UPDATED FROM MQTT  **************************************/
+
+
+    #define ZERO_POINT               3000       // 2943
+    #define LOCAL_ERROR              1.5
 
 /******************************* Do Not Edit / update these values      **************************************/
 //  Mqtt Configurations
-
-    // IOT PLATFORM VARIABLES
 
     #define ORG             "rqeofj"
     #define BOARD_TYPE      "HB_Water"

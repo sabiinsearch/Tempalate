@@ -32,11 +32,12 @@ void appManager_ctor(appManager * const me) {
   Serial.println("Board Initialized..");
 
     // Initial setting of Switch
-  setSwitchOn(me);
+  //setSwitchOn(me);
 
   // get switch update from EEPROM / cloud 
   getUpdateFrmCloud(me);
 
+  setSwitch(me);
  // me->waterLevel = analogRead(WT_sensor);
   me->scale = setLoadCell(me);
   Serial.print("Scale set with appMgr.. ");
@@ -140,19 +141,24 @@ void initRGB(){
   root["uniqueId"] = getBoard_ID();
   data["switch"] = appMgr->switch_val;
   data["level_%"] = appMgr->waterLevel;
-  data["energy"] = appMgr->current_accomulated;
-  appMgr->current_accomulated = 0;
+//  appMgr->totalEnergy = 0.0;                 // reset Total Energy after broadcast
+  data["energy"] = appMgr->totalEnergy;
+  appMgr->totalEnergy = 0.0;                 // reset Total Energy after broadcast
   data["timestamp"] = millis();
 
   serializeJson(root, payload);
   publishData(payload,appMgr->conManager);
  }
 
+void setSwitch(appManager* appMgr) {
+   (appMgr->switch_val==0) ? digitalWrite(SW_pin, 1) : digitalWrite(SW_pin, 0);
+}
+
 void setSwitchOn(appManager* appMgr) {
       // Initiate Preferences to save state
       pref.begin("app_conf",false);
 
-      digitalWrite(SW_pin, 1);
+      digitalWrite(SW_pin, 0);
       appMgr->switch_val = 1;
       pref.putInt("switch_value", appMgr->switch_val);
       pref.end();
@@ -163,7 +169,7 @@ void setSwitchOff(appManager* appMgr) {
       // Initiate Preferences to save state
       pref.begin("app_conf",false);
 
-      digitalWrite(SW_pin, 0);
+      digitalWrite(SW_pin, 1);
       appMgr->switch_val = 0;
 
       pref.putInt("switch_value", appMgr->switch_val);

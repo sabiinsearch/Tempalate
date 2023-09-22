@@ -372,7 +372,8 @@ void mqttCallback(char* topic, byte* payload, unsigned int length) {
                      (strcmp(keys[i],"SERVER")==0) ||
                      (strcmp(keys[i],"PUB_TOPIC")==0) ||
                      (strcmp(keys[i],"SUB_TOPIC")==0) ||
-                     (strcmp(keys[i],"MQTT_USER")==0) ||                      
+                     (strcmp(keys[i],"MQTT_USER")==0) ||
+                     (strcmp(keys[i],"MQTT_PWD")==0) ||                      
                      (strcmp(keys[i],"MQTT_PWD")==0)) {
                     
                     Serial.print(F(" Can not Update.. "));
@@ -628,7 +629,7 @@ void initConfig(connectionManager* conMgr) {
      preferences.begin("app_config",false);
      
      Serial.print(F(" TANK_CAPACITY "));
-     Serial.print(preferences.getLong("TANK_CAPACITY"));
+     Serial.print(preferences.getLong64("TANK_CAPACITY"));
      Serial.print(F(" \t"));
 
      Serial.print(F(" CAL_FACT "));

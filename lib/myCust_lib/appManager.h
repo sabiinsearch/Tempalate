@@ -11,7 +11,7 @@ typedef struct {
 
      connectionManager* conManager;
 //   energyMonitoringManager eManager;
-     float current_accomulated;
+     double totalEnergy;
      int switch_val;
      float waterLevel; 
      HX711 scale;
@@ -31,6 +31,7 @@ int  checkTouchDetected(appManager*);
 void checkWaterLevel_and_indicators(appManager*);
 void checkConnections_and_reconnect(void * pvParameters);
 void setBoardWithLC(appManager*);
+void setSwitch(appManager*);
 void setSwitchOn(appManager*);
 void setSwitchOff(appManager*);
 void checkButtonPressed(appManager*);
