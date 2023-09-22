@@ -19,8 +19,8 @@
     #define PUBLISH_INTERVAL_ON      5000L    // time in Minutes * sec in a min * milliseconds in sec
     #define PUBLISH_INTERVAL_OFF     5000L    // time in Minutes * sec in a min * milliseconds in sec
     #define VOLTAGE_IN               240       // Input Voltage
-    #define VCC                      3.3
-    #define SENSTIVITY               45        //0.14       // 185mV/A for 5A, 100 mV/A for 20A and 66mV/A for 30A Module
+    #define VCC                      4.10
+    #define SENSTIVITY               87        //0.14       // 185mV/A for 5A, 100 mV/A for 20A and 66mV/A for 30A Module
     #define PF                       95       // Power Factor
 //    #define FREQUENCY                55       // Frequency of AC Supply
 

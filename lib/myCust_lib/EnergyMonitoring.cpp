@@ -137,7 +137,7 @@ void getACS712(appManager* appMgr) {  // for AC
    float power = 0;         // power in watt              
    unsigned long last_time =0;
    unsigned long current_time =0;
-   unsigned int calibration = 1.1;              
+   unsigned int calibration = 1;              
    volatile double Wh =0 ;             // Energy in kWh
 
   current_time = millis();
@@ -145,7 +145,7 @@ void getACS712(appManager* appMgr) {  // for AC
   last_time = millis();
   Vrms = (Vpp/calibration) *0.707;    // root 2 is 0.707   // divide by 1.8 is calibration
 
-   if ((Vrms<0.1125)) {      // Vrms = 0.1125 leads to Irms  = 1 Amp
+   if ((Vrms<0.17)) {      // Vrms = 0.1125 leads to Irms  = 1 Amp
       Vrms = 0.0;
    }
 
@@ -159,12 +159,12 @@ void getACS712(appManager* appMgr) {  // for AC
   // power = (Irms*Supply_Voltage)/1.2;   // 1.2 is local calibration factor
   // power = (power/3600000)*(last_time-current_time);   
 
-  Serial.print(F("VPP: "));
-  Serial.print(Vpp);
-  Serial.print(F("\t"));
-  Serial.print(F("Vrms: "));
-  Serial.print(Vrms);
-  Serial.print(F("\t"));
+  // Serial.print(F("VPP: "));
+  // Serial.print(Vpp);
+  // Serial.print(F("\t"));
+  // Serial.print(F("Vrms: "));
+  // Serial.print(Vrms);
+  // Serial.print(F("\t"));
   Serial.print(F("Irms: "));
   Serial.print(Irms);
   Serial.print(F("\n"));
