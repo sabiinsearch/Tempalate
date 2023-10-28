@@ -506,11 +506,11 @@ void publishData(String data, connectionManager* con) {
     }
     // Serial.print(F("Mqtt_status.."));
     // Serial.println(con->mqtt_status);
-    if (con->mqtt_status) {
+    if ((preferences.getBool("MQTT_AVAIL")) && con->mqtt_status) {
 //      Serial.println(F("Publish Data: For publish on mqtt"));   // log
        publishOnMqtt(data, con);
     } 
-       
+       preferences.end();
 }
      
 void initConfig(connectionManager* conMgr) {
