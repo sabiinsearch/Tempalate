@@ -55,6 +55,8 @@ connectionManager * const connectionManager_ctor(connectionManager * const me ) 
   //  me->config.mqtt_user = MQTT_USER;
   //  me->config.mqtt_pwd = MQTT_PASSWORD;
    initConfig( me);
+   connectWiFi(me);
+   connectMQTT(me);
    return me;
 }
 
@@ -743,7 +745,7 @@ void checkConnections_and_reconnect(void * pvParameters) {
  
   radio_ability_local = preferences.getBool("RADIO_AVAIL",false);
   wifi_ability_local = preferences.getBool("WIFI_AVAIL",false);
-  mqtt_ability_local = preferences.getBool("MQTT_AVAIL",false);
+  mqtt_ability_local = preferences.getBool("MQTT_AVAILABILTY",false);
 
   preferences.end();
 

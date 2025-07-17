@@ -47,7 +47,7 @@ void setup() {
 
 
 //  Task to monitor Energy
-    xTaskCreatePinnedToCore(energy_consumption, "Task2", 10000, &managr, 0, NULL,  0);   
+ //   xTaskCreatePinnedToCore(energy_consumption, "Task2", 10000, &managr, 0, NULL,  0);   
 //    Serial.println("first task created ");
 
 //  Task to monitor connectivity
