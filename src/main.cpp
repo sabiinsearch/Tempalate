@@ -17,7 +17,7 @@
 
                   
 
-// my Managers
+// my Managers for tasks
 appManager managr;
 unsigned long prev_pub_time=0;
 Preferences prefer;
