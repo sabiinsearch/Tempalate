@@ -47,8 +47,8 @@ void setup() {
 
 
 //  Task to monitor Energy
- //   xTaskCreatePinnedToCore(energy_consumption, "Task2", 10000, &managr, 0, NULL,  0);   
-//    Serial.println("first task created ");
+   xTaskCreatePinnedToCore(energy_consumption, "Task2", 10000, &managr, 0, NULL,  0);   
+   Serial.println("first task created ");
 
 //  Task to monitor connectivity
     xTaskCreatePinnedToCore(checkConnections_and_reconnect, "Task3", 90000, &managr, 0, NULL,  0);   
@@ -101,5 +101,5 @@ void loop() {
        mqtt_loop();
     }   
     delay(10);  
- //  checkConnections_and_reconnect(&managr);   
+ //  checkConnections_and_reconnect(&managr);   //
 }
