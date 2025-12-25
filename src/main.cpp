@@ -101,5 +101,5 @@ void loop() {
        mqtt_loop();
     }   
     delay(10);  
- //  checkConnections_and_reconnect(&managr);   //
+ //  checkConnections_and_reconnect(&managr);   
 }
